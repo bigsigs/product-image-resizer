@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>白场 · 商品图尺寸处理</title>
+  <style>
+    :root {
+      --ink: #17211d;
+      --muted: #6e7973;
+      --paper: #f4f1e9;
+      --panel: rgba(255,255,255,.72);
+      --line: rgba(23,33,29,.14);
+      --acid: #d9ff43;
+      --deep: #1f3b30;
+      --danger: #b84932;
+      --shadow: 0 24px 70px rgba(44,54,47,.12);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--paper); }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        linear-gradient(rgba(23,33,29,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23,33,29,.035) 1px, transparent 1px),
+        radial-gradient(circle at 6% 4%, #fff 0, transparent 32%),
+        var(--paper);
+      background-size: 28px 28px, 28px 28px, auto, auto;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1480px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 50px; }
+    header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px; animation: rise .5s ease both;
+    }
+    .brand { display: flex; gap: 17px; align-items: center; }
+    .mark {
+      width: 54px; height: 54px; display: grid; place-items: center;
+      border-radius: 50%; background: var(--ink); color: var(--acid);
+      font-family: Georgia, serif; font-size: 25px; box-shadow: 7px 7px 0 var(--acid);
+    }
+    h1 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(30px, 4vw, 51px); line-height: .95; letter-spacing: -.045em; }
+    h1 small { display: block; margin-top: 9px; font: 600 11px/1 "Avenir Next", sans-serif; letter-spacing: .22em; color: var(--muted); }
+    .privacy { text-align: right; font-size: 12px; color: var(--muted); line-height: 1.65; }
+    .privacy b { color: var(--deep); }
+    main { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 22px; }
+    .card {
+      background: var(--panel); border: 1px solid rgba(255,255,255,.92);
+      box-shadow: var(--shadow); backdrop-filter: blur(18px);
+      border-radius: 22px; overflow: hidden;
+    }
+    .controls { padding: 24px; animation: rise .55s .08s ease both; }
+    .section + .section { margin-top: 25px; padding-top: 23px; border-top: 1px solid var(--line); }
+    .eyebrow {
+      display: flex; align-items: center; gap: 9px; margin: 0 0 13px;
+      font-size: 11px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 17px; height: 3px; background: var(--acid); box-shadow: 0 0 0 1px var(--ink); }
+    select, input[type=number] {
+      width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--line);
+      border-radius: 10px; background: rgba(255,255,255,.82); outline: 0;
+    }
+    select:focus, input:focus { border-color: var(--deep); box-shadow: 0 0 0 3px rgba(31,59,48,.08); }
+    .dimensions { display: grid; grid-template-columns: 1fr 17px 1fr; align-items: center; gap: 7px; margin-top: 10px; }
+    .dimensions span { text-align: center; color: var(--muted); }
+    .range-head { display: flex; justify-content: space-between; margin-bottom: 9px; font-size: 13px; }
+    .range-head output { font-family: ui-monospace, monospace; color: var(--deep); font-weight: 700; }
+    input[type=range] { width: 100%; accent-color: var(--deep); cursor: pointer; }
+    .hint { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 11px; background: rgba(23,33,29,.07); }
+    .segmented button { border: 0; padding: 8px; background: transparent; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .segmented button.active { background: white; box-shadow: 0 3px 11px rgba(23,33,29,.1); font-weight: 700; }
+    .workspace { min-height: 660px; animation: rise .55s .14s ease both; display: flex; flex-direction: column; }
+    .drop {
+      position: relative; min-height: 560px; flex: 1; margin: 16px;
+      border: 1.5px dashed rgba(31,59,48,.28); border-radius: 17px;
+      display: grid; place-items: center; overflow: hidden; transition: .25s ease;
+      background: rgba(255,255,255,.25);
+    }
+    .drop.dragging { border-color: var(--ink); background: rgba(217,255,67,.2); transform: scale(.995); }
+    .empty { text-align: center; max-width: 420px; padding: 45px 24px; }
+    .drop-icon { width: 88px; height: 88px; margin: 0 auto 22px; border: 1px solid var(--ink); border-radius: 50%; display: grid; place-items: center; background: var(--acid); box-shadow: 9px 9px 0 var(--ink); }
+    .drop-icon svg { width: 38px; }
+    .empty h2 { margin: 0 0 10px; font: 400 29px/1.15 Georgia, "Songti SC", serif; }
+    .empty p { margin: 0 0 23px; color: var(--muted); line-height: 1.65; font-size: 13px; }
+    .primary, .secondary, .download {
+      border: 0; border-radius: 10px; cursor: pointer; font-weight: 750;
+      transition: transform .16s, box-shadow .16s, opacity .16s;
+    }
+    .primary { padding: 12px 19px; color: white; background: var(--deep); box-shadow: 4px 4px 0 var(--acid); }
+    .primary:hover, .download:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 var(--acid); }
+    .gallery { display: none; width: 100%; height: 100%; padding: 6px; align-content: start; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .gallery.active { display: grid; }
+    .tile { position: relative; border-radius: 14px; background: white; border: 1px solid var(--line); overflow: hidden; animation: pop .35s ease both; }
+    .preview { aspect-ratio: 1 / 1; display: grid; place-items: center; padding: 14px; background: #e8e8e6; }
+    .preview canvas { max-width: 100%; max-height: 100%; box-shadow: 0 7px 25px rgba(0,0,0,.1); image-rendering: auto; }
+    .meta { padding: 12px; }
+    .name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; font-weight: 700; }
+    .spec { margin-top: 4px; font-size: 10px; color: var(--muted); font-family: ui-monospace, monospace; }
+    .tile-actions { display: grid; grid-template-columns: 1fr 1fr 36px; gap: 7px; margin-top: 11px; }
+    .download { padding: 9px; color: white; background: var(--deep); font-size: 11px; }
+    .edit-one { padding: 9px; border: 1px solid var(--deep); border-radius: 9px; background: white; color: var(--deep); cursor: pointer; font-size: 11px; font-weight: 750; }
+    .edit-one:hover { background: var(--acid); }
+    .remove { border: 1px solid var(--line); border-radius: 9px; background: white; cursor: pointer; }
+    .remove:hover { color: var(--danger); border-color: var(--danger); }
+    .toolbar { display: none; align-items: center; justify-content: space-between; padding: 0 18px 16px; gap: 12px; }
+    .toolbar.active { display: flex; }
+    .count { font-size: 12px; color: var(--muted); }
+    .toolbar .buttons { display: flex; gap: 8px; }
+    .secondary { padding: 10px 14px; background: white; border: 1px solid var(--line); font-size: 11px; }
+    #fileInput { display: none; }
+    .processing { opacity: .55; pointer-events: none; }
+    .modal {
+      position: fixed; inset: 0; z-index: 50; display: none; place-items: center;
+      padding: 24px; background: rgba(12,20,16,.72); backdrop-filter: blur(12px);
+    }
+    .modal.open { display: grid; animation: fade .18s ease both; }
+    .editor {
+      width: min(960px, 100%); max-height: calc(100vh - 40px); display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px; overflow: hidden;
+      border-radius: 24px; background: #f8f6ef; box-shadow: 0 30px 100px rgba(0,0,0,.36);
+    }
+    .editor-stage {
+      min-height: 570px; padding: 36px; display: grid; place-items: center;
+      background:
+        linear-gradient(45deg,#d9ddd9 25%,transparent 25%),
+        linear-gradient(-45deg,#d9ddd9 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#d9ddd9 75%),
+        linear-gradient(-45deg,transparent 75%,#d9ddd9 75%), #e8ebe7;
+      background-size: 22px 22px; background-position: 0 0,0 11px,11px -11px,-11px 0;
+    }
+    .editor-stage canvas {
+      max-width: 100%; max-height: min(74vh, 650px); background: white;
+      box-shadow: 0 18px 50px rgba(21,33,27,.22); cursor: ns-resize; touch-action: none;
+    }
+    .editor-side { padding: 27px; display: flex; flex-direction: column; }
+    .editor-side h2 { margin: 0; font: 400 26px/1.1 Georgia, "Songti SC", serif; }
+    .editor-side .filename { margin: 7px 0 26px; color: var(--muted); font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .editor-control + .editor-control { margin-top: 25px; }
+    .editor-tip { margin: 26px 0 0; padding: 13px; border-radius: 11px; background: rgba(217,255,67,.34); font-size: 11px; line-height: 1.6; }
+    .editor-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 28px; }
+    .editor-actions .primary, .editor-actions .secondary { width: 100%; box-shadow: none; }
+    .reset { width: 100%; margin-top: 10px; padding: 9px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
+    .reset:hover { color: var(--danger); }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+    @media (max-width: 840px) {
+      .shell { width: min(100% - 24px, 680px); padding-top: 20px; }
+      header { align-items: center; }
+      .privacy { display: none; }
+      main { grid-template-columns: 1fr; }
+      .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .section + .section { margin: 0; padding: 0; border: 0; }
+      .workspace { min-height: 520px; }
+      .drop { min-height: 430px; }
+    }
+    @media (max-width: 520px) {
+      .controls { display: block; }
+      .section + .section { margin-top: 21px; padding-top: 20px; border-top: 1px solid var(--line); }
+      .gallery { grid-template-columns: 1fr; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .toolbar .buttons { display: grid; grid-template-columns: 1fr 1fr; }
+      .modal { padding: 10px; }
+      .editor { grid-template-columns: 1fr; max-height: calc(100vh - 20px); overflow-y: auto; }
+      .editor-stage { min-height: 330px; padding: 20px; }
+      .editor-stage canvas { max-height: 44vh; }
+      .editor-side { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="mark">白</div>
+        <h1>白场<small>PRODUCT IMAGE LAB</small></h1>
+      </div>
+      <div class="privacy"><b>本地处理 · 图片不上传</b><br>一个文件，也能是一间小型修图室</div>
+    </header>
+
+    <main>
+      <aside class="card controls">
+        <section class="section">
+          <p class="eyebrow">画布尺寸</p>
+          <select id="preset" aria-label="常用尺寸">
+            <option value="800x800">800 × 800 · 电商主图</option>
+            <option value="1000x1000">1000 × 1000 · 方形高清</option>
+            <option value="1200x1200">1200 × 1200 · 社媒方图</option>
+            <option value="1600x1600">1600 × 1600 · 高清主图</option>
+            <option value="1900x1260">1900 × 1260 · 横版产品图</option>
+            <option value="1920x1080">1920 × 1080 · 16:9 横屏</option>
+            <option value="1200x628">1200 × 628 · 分享封面</option>
+            <option value="custom">自定义尺寸</option>
+          </select>
+          <div class="dimensions">
+            <input id="width" type="number" min="1" max="10000" value="800" aria-label="宽度">
+            <span>×</span>
+            <input id="height" type="number" min="1" max="10000" value="800" aria-label="高度">
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="eyebrow">产品留白</p>
+          <div class="range-head"><span>四周边距</span><output id="paddingOut">8%</output></div>
+          <input id="padding" type="range" min="0" max="35" value="8">
+          <p class="hint">按原比例完整放入画布，不裁切、不拉伸。</p>
+        </section>
+
+        <section class="section">
+          <p class="eyebrow">白底校正</p>
+          <div class="range-head"><span>灰底提纯</span><output id="whiteOut">35%</output></div>
+          <input id="whiten" type="range" min="0" max="100" value="35">
+          <p class="hint">只调整明亮且接近中性的灰白区域。复杂浅色产品建议降低强度。</p>
+        </section>
+
+        <section class="section">
+          <p class="eyebrow">导出设置</p>
+          <div class="range-head"><span>WebP 品质</span><output id="qualityOut">90%</output></div>
+          <input id="quality" type="range" min="50" max="100" value="90">
+          <div class="segmented" style="margin-top:14px">
+            <button type="button" class="fit active" data-fit="contain">完整留白</button>
+            <button type="button" class="fit" data-fit="cover">铺满裁切</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="card workspace">
+        <div class="drop" id="dropZone">
+          <div class="empty" id="empty">
+            <div class="drop-icon">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M24 32V9m0 0-8 8m8-8 8 8M10 29v8a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-8"/>
+              </svg>
+            </div>
+            <h2>把产品图拖到这里</h2>
+            <p>支持 JPG、PNG、WebP，可一次选择多张。<br>处理全在浏览器本地完成。</p>
+            <button class="primary" id="chooseBtn" type="button">选择图片</button>
+          </div>
+          <div class="gallery" id="gallery"></div>
+        </div>
+        <div class="toolbar" id="toolbar">
+          <span class="count" id="count"></span>
+          <div class="buttons">
+            <button class="secondary" id="addBtn" type="button">＋ 继续添加</button>
+            <button class="primary" id="downloadAll" type="button">全部导出 WebP</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple>
+  </div>
+
+  <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <div class="editor">
+      <div class="editor-stage" id="editorStage">
+        <canvas id="editorCanvas"></canvas>
+      </div>
+      <div class="editor-side">
+        <h2 id="editorTitle">单独调整</h2>
+        <div class="filename" id="editorName"></div>
+        <div class="editor-control">
+          <div class="range-head"><span>图片大小</span><output id="zoomOut">100%</output></div>
+          <input id="zoom" type="range" min="40" max="220" value="100">
+        </div>
+        <div class="editor-control">
+          <div class="range-head"><span>上下位置</span><output id="offsetOut">居中</output></div>
+          <input id="offsetY" type="range" min="-60" max="60" value="0">
+        </div>
+        <p class="editor-tip">直接在左侧画布中按住图片上下拖动；滚动鼠标滚轮可以缩放。</p>
+        <button class="reset" id="resetEdit" type="button">恢复居中与默认大小</button>
+        <div class="editor-actions">
+          <button class="secondary" id="cancelEdit" type="button">取消</button>
+          <button class="primary" id="applyEdit" type="button">应用调整</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const $ = s => document.querySelector(s);
+      const $$ = s => [...document.querySelectorAll(s)];
+      const state = { images: [], fit: "contain", renderTimer: null, editing: null, draft: null };
+      const els = {
+        preset: $("#preset"), width: $("#width"), height: $("#height"),
+        padding: $("#padding"), whiten: $("#whiten"), quality: $("#quality"),
+        paddingOut: $("#paddingOut"), whiteOut: $("#whiteOut"), qualityOut: $("#qualityOut"),
+        input: $("#fileInput"), drop: $("#dropZone"), empty: $("#empty"),
+        gallery: $("#gallery"), toolbar: $("#toolbar"), count: $("#count")
+      };
+
+      const safeSize = () => ({
+        w: Math.max(1, Math.min(10000, Number(els.width.value) || 800)),
+        h: Math.max(1, Math.min(10000, Number(els.height.value) || 800))
+      });
+
+      function syncLabels() {
+        els.paddingOut.value = els.padding.value + "%";
+        els.whiteOut.value = els.whiten.value + "%";
+        els.qualityOut.value = els.quality.value + "%";
+      }
+
+      function setBusy(busy) {
+        els.gallery.classList.toggle("processing", busy);
+      }
+
+      async function loadFiles(fileList) {
+        const files = [...fileList].filter(f => f.type.startsWith("image/"));
+        if (!files.length) return;
+        setBusy(true);
+        for (const file of files) {
+          try {
+            const url = URL.createObjectURL(file);
+            const bitmap = await createImageBitmap(file);
+            state.images.push({ id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(), file, url, bitmap, adjust: { zoom: 100, y: 0 } });
+          } catch (err) {
+            console.warn("无法读取图片", file.name, err);
+          }
+        }
+        setBusy(false);
+        renderGallery();
+      }
+
+      function processPixels(ctx, x, y, w, h, strength) {
+        if (!strength || w * h > 26000000) return;
+        const img = ctx.getImageData(x, y, w, h);
+        const d = img.data;
+        const threshold = 218 - strength * .38;
+        const chromaLimit = 8 + strength * .16;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], g = d[i+1], b = d[i+2];
+          const max = Math.max(r,g,b), min = Math.min(r,g,b);
+          const lum = .2126*r + .7152*g + .0722*b;
+          if (lum > threshold && max - min < chromaLimit) {
+            const ramp = Math.min(1, (lum - threshold) / Math.max(1, 255 - threshold));
+            const amount = (strength / 100) * (.35 + .65 * ramp);
+            d[i] += (255-r) * amount;
+            d[i+1] += (255-g) * amount;
+            d[i+2] += (255-b) * amount;
+          }
+        }
+        ctx.putImageData(img, x, y);
+      }
+
+      function draw(item, canvas, adjustment = item.adjust) {
+        const { w, h } = safeSize();
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        canvas.width = w; canvas.height = h;
+        ctx.fillStyle = "#fff"; ctx.fillRect(0,0,w,h);
+        const pad = Math.min(w,h) * Number(els.padding.value) / 100;
+        const boxW = Math.max(1, w-pad*2), boxH = Math.max(1, h-pad*2);
+        const iw = item.bitmap.width, ih = item.bitmap.height;
+        const baseScale = state.fit === "cover" ? Math.max(boxW/iw, boxH/ih) : Math.min(boxW/iw, boxH/ih);
+        const scale = baseScale * ((adjustment?.zoom || 100) / 100);
+        const dw = iw*scale, dh = ih*scale, dx = (w-dw)/2;
+        const dy = (h-dh)/2 + h * ((adjustment?.y || 0) / 100);
+        ctx.save();
+        if (state.fit === "cover") {
+          ctx.beginPath(); ctx.rect(pad,pad,boxW,boxH); ctx.clip();
+        }
+        ctx.drawImage(item.bitmap, dx, dy, dw, dh);
+        ctx.restore();
+        const sx = Math.max(0, Math.floor(dx)), sy = Math.max(0, Math.floor(dy));
+        const sw = Math.min(w-sx, Math.ceil(dw)), sh = Math.min(h-sy, Math.ceil(dh));
+        if (sw > 0 && sh > 0) processPixels(ctx, sx, sy, sw, sh, Number(els.whiten.value));
+      }
+
+      function renderGallery() {
+        els.gallery.innerHTML = "";
+        const has = state.images.length > 0;
+        els.empty.style.display = has ? "none" : "block";
+        els.gallery.classList.toggle("active", has);
+        els.toolbar.classList.toggle("active", has);
+        els.count.textContent = `已载入 ${state.images.length} 张 · 输出 ${safeSize().w} × ${safeSize().h}`;
+        state.images.forEach((item, index) => {
+          const tile = document.createElement("article");
+          tile.className = "tile";
+          tile.style.animationDelay = Math.min(index * 40, 240) + "ms";
+          tile.innerHTML = `
+            <div class="preview"><canvas aria-label="${escapeHtml(item.file.name)} 的处理预览"></canvas></div>
+            <div class="meta">
+              <div class="name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</div>
+              <div class="spec">${item.bitmap.width}×${item.bitmap.height} → ${safeSize().w}×${safeSize().h} WEBP</div>
+              <div class="tile-actions">
+                <button class="edit-one" type="button">单独调整</button>
+                <button class="download" type="button">导出这张</button>
+                <button class="remove" type="button" aria-label="移除">×</button>
+              </div>
+            </div>`;
+          draw(item, tile.querySelector("canvas"));
+          tile.querySelector(".edit-one").onclick = () => openEditor(item);
+          tile.querySelector(".download").onclick = () => download(item, tile.querySelector("canvas"));
+          tile.querySelector(".remove").onclick = () => remove(item.id);
+          els.gallery.appendChild(tile);
+        });
+      }
+
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      }
+
+      function remove(id) {
+        const i = state.images.findIndex(x => x.id === id);
+        if (i >= 0) {
+          URL.revokeObjectURL(state.images[i].url);
+          state.images[i].bitmap.close?.();
+          state.images.splice(i, 1);
+          renderGallery();
+        }
+      }
+
+      function fileName(name) {
+        const base = name.replace(/\.[^.]+$/, "");
+        const {w,h} = safeSize();
+        return `${base}_${w}x${h}.webp`;
+      }
+
+      function download(item, canvas) {
+        canvas.toBlob(blob => {
+          if (!blob) return alert("当前浏览器无法导出 WebP，请使用最新版 Chrome、Edge 或 Safari。");
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = fileName(item.file.name);
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+        }, "image/webp", Number(els.quality.value)/100);
+      }
+
+      function scheduleRender() {
+        syncLabels();
+        clearTimeout(state.renderTimer);
+        state.renderTimer = setTimeout(renderGallery, 90);
+      }
+
+      const modal = $("#editModal");
+      const editorCanvas = $("#editorCanvas");
+      const zoom = $("#zoom");
+      const offsetY = $("#offsetY");
+      let editorFrame = null;
+
+      function renderEditor() {
+        cancelAnimationFrame(editorFrame);
+        editorFrame = requestAnimationFrame(() => {
+          if (!state.editing) return;
+          $("#zoomOut").value = state.draft.zoom + "%";
+          const y = Number(state.draft.y);
+          $("#offsetOut").value = y === 0 ? "居中" : `${y > 0 ? "下移" : "上移"} ${Math.abs(y)}%`;
+          zoom.value = state.draft.zoom;
+          offsetY.value = state.draft.y;
+          draw(state.editing, editorCanvas, state.draft);
+        });
+      }
+
+      function openEditor(item) {
+        state.editing = item;
+        state.draft = { zoom: item.adjust?.zoom || 100, y: item.adjust?.y || 0 };
+        $("#editorName").textContent = `${item.file.name} · ${safeSize().w} × ${safeSize().h}`;
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        renderEditor();
+      }
+
+      function closeEditor() {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+        state.editing = null;
+        state.draft = null;
+      }
+
+      zoom.oninput = () => { state.draft.zoom = Number(zoom.value); renderEditor(); };
+      offsetY.oninput = () => { state.draft.y = Number(offsetY.value); renderEditor(); };
+      $("#resetEdit").onclick = () => { state.draft = { zoom: 100, y: 0 }; renderEditor(); };
+      $("#cancelEdit").onclick = closeEditor;
+      $("#applyEdit").onclick = () => {
+        state.editing.adjust = { ...state.draft };
+        closeEditor();
+        renderGallery();
+      };
+      modal.addEventListener("click", e => { if (e.target === modal) closeEditor(); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape" && state.editing) closeEditor(); });
+
+      let dragStart = null;
+      editorCanvas.addEventListener("pointerdown", e => {
+        if (!state.editing) return;
+        dragStart = { pointerY: e.clientY, value: state.draft.y };
+        editorCanvas.setPointerCapture(e.pointerId);
+      });
+      editorCanvas.addEventListener("pointermove", e => {
+        if (!dragStart) return;
+        const visibleHeight = editorCanvas.getBoundingClientRect().height;
+        const delta = (e.clientY - dragStart.pointerY) / visibleHeight * 100;
+        state.draft.y = Math.max(-60, Math.min(60, Math.round(dragStart.value + delta)));
+        renderEditor();
+      });
+      const endDrag = () => { dragStart = null; };
+      editorCanvas.addEventListener("pointerup", endDrag);
+      editorCanvas.addEventListener("pointercancel", endDrag);
+      editorCanvas.addEventListener("wheel", e => {
+        if (!state.editing) return;
+        e.preventDefault();
+        state.draft.zoom = Math.max(40, Math.min(220, state.draft.zoom + (e.deltaY < 0 ? 5 : -5)));
+        renderEditor();
+      }, { passive: false });
+
+      els.preset.onchange = () => {
+        if (els.preset.value !== "custom") {
+          const [w,h] = els.preset.value.split("x");
+          els.width.value = w; els.height.value = h;
+        }
+        scheduleRender();
+      };
+      [els.width, els.height].forEach(input => input.oninput = () => {
+        els.preset.value = "custom"; scheduleRender();
+      });
+      [els.padding, els.whiten, els.quality].forEach(input => input.oninput = scheduleRender);
+      $$(".fit").forEach(btn => btn.onclick = () => {
+        $$(".fit").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active"); state.fit = btn.dataset.fit; renderGallery();
+      });
+      ["chooseBtn","addBtn"].forEach(id => $("#"+id).onclick = () => els.input.click());
+      els.input.onchange = () => { loadFiles(els.input.files); els.input.value = ""; };
+      ["dragenter","dragover"].forEach(type => els.drop.addEventListener(type, e => {
+        e.preventDefault(); els.drop.classList.add("dragging");
+      }));
+      ["dragleave","drop"].forEach(type => els.drop.addEventListener(type, e => {
+        e.preventDefault(); els.drop.classList.remove("dragging");
+      }));
+      els.drop.addEventListener("drop", e => loadFiles(e.dataTransfer.files));
+      $("#downloadAll").onclick = async () => {
+        const canvases = [...els.gallery.querySelectorAll("canvas")];
+        for (let i=0; i<state.images.length; i++) {
+          download(state.images[i], canvases[i]);
+          await new Promise(r => setTimeout(r, 220));
+        }
+      };
+      syncLabels();
+    })();
+  </script>
+</body>
+</html>
