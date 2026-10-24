@@ -1,0 +1,413 @@
+---
+import CompanyHistoryTable from "../../../components/CompanyHistoryTable.astro";
+import { getCompanyIcon, hasDarkCompanyIcon } from "../../../data/company-icons.js";
+import SiteHeader from "../../../components/SiteHeader.astro";
+import SiteFooter from "../../../components/SiteFooter.astro";
+import ThemeHead from "../../../components/ThemeHead.astro";
+import "../../../styles/reference.css";
+import "../../../styles/company-detail.css";
+import companies from "../../../../public/data/yueqing-export-ranking/companies.json";
+import profiles from "../../../../public/data/yueqing-export-ranking/company-profiles.json";
+import periods from "../../../../public/data/yueqing-export-ranking/periods.json";
+import data2026Ytd08 from "../../../../public/data/yueqing-export-ranking/2026-ytd-08.json";
+import data2026Ytd07 from "../../../../public/data/yueqing-export-ranking/2026-ytd-07.json";
+import data2026Ytd06Exact from "../../../../public/data/yueqing-export-ranking/2026-ytd-06-exact.json";
+import data2026Ytd06 from "../../../../public/data/yueqing-export-ranking/2026-ytd-06.json";
+import data2026Ytd05 from "../../../../public/data/yueqing-export-ranking/2026-ytd-05.json";
+import data2026Ytd04 from "../../../../public/data/yueqing-export-ranking/2026-ytd-04.json";
+import data2026Ytd03 from "../../../../public/data/yueqing-export-ranking/2026-ytd-03.json";
+import data2026Ytd02 from "../../../../public/data/yueqing-export-ranking/2026-ytd-02.json";
+import data2025Ytd12 from "../../../../public/data/yueqing-export-ranking/2025-ytd-12.json";
+import data2025Ytd11 from "../../../../public/data/yueqing-export-ranking/2025-ytd-11.json";
+import data2025Ytd10 from "../../../../public/data/yueqing-export-ranking/2025-ytd-10.json";
+import data2025Ytd06 from "../../../../public/data/yueqing-export-ranking/2025-ytd-06.json";
+
+type SourceRecord = {
+  company_id: string;
+  rank: number;
+  band_label: string;
+  amount_label?: string;
+  source_duplicate?: boolean;
+};
+type RankingDataset = { records: SourceRecord[] };
+type CompanyLink = { type: string; label: string; url: string; domain: string };
+type CompanySource = { label: string; url: string };
+type CompanyDetails = {
+  legal_name?: string;
+  founding_claim?: string;
+  registered_on?: string;
+  unified_social_credit_code?: string;
+  legal_representative?: string;
+  registered_capital?: string;
+  status?: string;
+  company_type?: string;
+  registered_address?: string;
+  operating_address?: string;
+  contact_address?: string;
+  alibaba_address?: string;
+  main_products?: string;
+  registration_authority?: string;
+  industry?: string;
+  checked_at?: string;
+  confidence?: string;
+  sources?: CompanySource[];
+};
+type CompanyProfile = { links?: CompanyLink[]; details?: CompanyDetails };
+type CompanyHistory = {
+  periodId: string;
+  periodLabel: string;
+  asOf: string;
+  rank: number;
+  bandLabel: string;
+  amountLabel?: string;
+  sourceDuplicate?: boolean;
+};
+
+export async function getStaticPaths() {
+  const datasets = new Map<string, RankingDataset>([
+    ["2026-ytd-08", data2026Ytd08],
+    ["2026-ytd-07", data2026Ytd07],
+    ["2026-ytd-06-exact", data2026Ytd06Exact],
+    ["2026-ytd-06", data2026Ytd06],
+    ["2026-ytd-05", data2026Ytd05],
+    ["2026-ytd-04", data2026Ytd04],
+    ["2026-ytd-03", data2026Ytd03],
+    ["2026-ytd-02", data2026Ytd02],
+    ["2025-ytd-12", data2025Ytd12],
+    ["2025-ytd-11", data2025Ytd11],
+    ["2025-ytd-10", data2025Ytd10],
+    ["2025-ytd-06", data2025Ytd06],
+  ]);
+  const companyProfiles = profiles as Record<string, CompanyProfile>;
+  const histories = new Map();
+
+  for (const period of periods.periods) {
+    const dataset = datasets.get(period.id);
+    for (const record of dataset?.records || []) {
+      const history = histories.get(record.company_id) || [];
+      history.push({
+        periodId: period.id,
+        periodLabel: period.label,
+        asOf: period.as_of,
+        rank: record.rank,
+        bandLabel: record.band_label,
+        amountLabel: record.amount_label,
+        sourceDuplicate: record.source_duplicate,
+      });
+      histories.set(record.company_id, history);
+    }
+  }
+
+  return companies.map((company) => ({
+    params: { companyId: company.company_id },
+    props: {
+      company,
+      history: histories.get(company.company_id) || [],
+      profile: companyProfiles[company.company_id] || null,
+    },
+  }));
+}
+
+const { company, history, profile } = Astro.props as {
+  company: { company_id: string; company_name: string; aliases: string[]; needs_review: boolean };
+  history: CompanyHistory[];
+  profile: CompanyProfile | null;
+};
+const currentAugust = history.find((record) => record.periodId === "2026-ytd-08");
+const latest = currentAugust ?? history[0];
+const previous = currentAugust
+  ? history.find((record) => record.periodId === "2026-ytd-07")
+  : latest
+    ? history.find((record) => record.periodId !== latest.periodId && record.asOf !== latest.asOf)
+    : undefined;
+const latestAmount = latest?.amountLabel ?? latest?.bandLabel;
+const details = profile?.details;
+const canonical = new URL(`/yueqing-export-ranking/company/${company.company_id}/`, Astro.site);
+const title = `${company.company_name}出口排名与历史数据｜OXOX`;
+const description = latest
+  ? `${company.company_name}乐清出口排名查询：${latest.periodLabel}累计排名第${latest.rank}名，累计出口额为${latestAmount}，并提供历史排名变化。`
+  : `${company.company_name}出口排名与历史数据档案。`;
+const isHttpUrl = (value: string) => {
+  try { return ["http:", "https:"].includes(new URL(value).protocol); }
+  catch { return false; }
+};
+const validLinks = (profile?.links ?? []).filter((link) => isHttpUrl(link.url));
+const primaryWebsite = validLinks.find((link) => link.type === "official_website")?.url;
+const primaryDomain = primaryWebsite ? new URL(primaryWebsite).hostname.replace(/^www\./, "") : null;
+const companyIcon = getCompanyIcon(primaryDomain, company.company_id);
+const companyInitials = company.company_name.replace(/^(?:浙江省?|温州市?|乐清市?)/, "").slice(0, 2);
+const periodRecordCounts = new Map<string, number>();
+for (const record of history) {
+  periodRecordCounts.set(record.periodId, (periodRecordCounts.get(record.periodId) ?? 0) + 1);
+}
+const isAmbiguous = (record: CompanyHistory | undefined) => Boolean(record && (
+  record.sourceDuplicate || (periodRecordCounts.get(record.periodId) ?? 0) > 1
+));
+const rankDelta = latest && previous && !isAmbiguous(latest) && !isAmbiguous(previous)
+  ? previous.rank - latest.rank
+  : null;
+const rankState = rankDelta === null ? "pending" : rankDelta > 0 ? "up" : rankDelta < 0 ? "down" : "flat";
+const rankCopy = rankDelta === null
+  ? (isAmbiguous(latest) || isAmbiguous(previous) ? "源表多条，未比较" : "暂无可比较记录")
+  : rankDelta > 0 ? `↑ ${rankDelta}` : rankDelta < 0 ? `↓ ${Math.abs(rankDelta)}` : "— 持平";
+const rankComparison = !latest
+  ? "首次收录"
+  : !previous
+    ? `08 月源表未收录 ${company.company_name}`
+    : `对比 ${previous.periodLabel}`;
+const previousUnavailableCopy = latest && !previous
+  ? currentAugust
+    ? "上期未收录，暂不比较"
+    : "暂无可比较记录"
+  : rankDelta === null && (isAmbiguous(latest) || isAmbiguous(previous))
+    ? "源表多条，未比较"
+    : "暂无可比较记录";
+const uniqueDates = [...new Set(history.map((record) => record.asOf))].sort().reverse();
+const latestValue = latestAmount && latestAmount !== "区间未提供"
+  ? latestAmount.replace(/[（）()]/g, "").replace(/\s*万美元/, "").replace(/-/g, "–").trim()
+  : "未提供";
+const amountUnit = latestAmount?.includes("万美元") ? "万美元" : "";
+// A date can have both an exact and a range edition. The main table shows only the
+// latest month; the chart uses up to six months and prefers one exact record per date.
+const latestTableDate = uniqueDates[0];
+const latestHistory = history.filter(record => record.asOf === latestTableDate);
+const olderHistory = history.filter(record => record.asOf !== latestTableDate);
+const chartDates = uniqueDates.slice(0, 6);
+const chartByDate = new Map<string, CompanyHistory>();
+for (const record of history) {
+  const existing = chartByDate.get(record.asOf);
+  if (!existing || (!existing.amountLabel && record.amountLabel)) chartByDate.set(record.asOf, record);
+}
+const chartHistory = [...chartByDate.values()]
+  .filter((record) => chartDates.includes(record.asOf) && !isAmbiguous(record))
+  .sort((a, b) => a.asOf.localeCompare(b.asOf));
+const minRank = chartHistory.length ? Math.min(...chartHistory.map((record) => record.rank)) : 1;
+const maxRank = chartHistory.length ? Math.max(...chartHistory.map((record) => record.rank)) : 1;
+const chartMin = Math.max(1, minRank - Math.max(1, Math.round((maxRank - minRank) * .15)));
+const chartMax = maxRank + Math.max(1, Math.round((maxRank - minRank) * .15));
+const chartPoints = chartHistory.map((record, index) => ({
+  ...record,
+  x: 62 + (index / Math.max(1, chartHistory.length - 1)) * 824,
+  y: 32 + ((record.rank - chartMin) / Math.max(1, chartMax - chartMin)) * 138,
+  label: `${record.asOf.slice(2, 4)}.${record.asOf.slice(5, 7)}`,
+}));
+const chartTicks = [...new Set([chartMin, Math.round((chartMin + chartMax) / 2), chartMax])];
+const facts = [
+  ["企业名称", details?.legal_name],
+  ["企业自述成立时间", details?.founding_claim],
+  ["工商登记成立日期", details?.registered_on],
+  ["法定代表人", details?.legal_representative],
+  ["注册资本", details?.registered_capital],
+  ["统一社会信用代码", details?.unified_social_credit_code],
+  ["企业状态", details?.status],
+  ["企业类型", details?.company_type],
+  ["注册地址", details?.registered_address],
+  ["生产经营地址", details?.operating_address],
+  ["官网联系地址", details?.contact_address],
+  ["Alibaba 店铺地址", details?.alibaba_address],
+  ["主营产品", details?.main_products],
+  ["登记机关", details?.registration_authority],
+  ["行业分类", details?.industry],
+].filter((fact) => fact[1] !== undefined && fact[1] !== null && fact[1] !== "");
+const validSources = (details?.sources ?? []).filter((source) => isHttpUrl(source.url));
+const companySchema = details ? {
+  "@type": "Organization",
+  "@id": `${canonical.href}#organization`,
+  name: company.company_name,
+  legalName: details.legal_name || company.company_name,
+  identifier: details.unified_social_credit_code ? {
+    "@type": "PropertyValue",
+    propertyID: "统一社会信用代码",
+    value: details.unified_social_credit_code,
+  } : undefined,
+  address: details.registered_address ? {
+    "@type": "PostalAddress",
+    addressLocality: "乐清市",
+    streetAddress: details.registered_address,
+    addressCountry: "CN",
+  } : undefined,
+  url: primaryWebsite,
+} : null;
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": canonical.href,
+      url: canonical.href,
+      name: title,
+      description,
+      inLanguage: "zh-CN",
+      mainEntity: { "@id": `${canonical.href}#dataset` },
+    },
+    {
+      "@type": "Dataset",
+      "@id": `${canonical.href}#dataset`,
+      name: `${company.company_name}累计出口排名历史数据`,
+      description,
+      temporalCoverage: history.length ? `${history.at(-1).asOf}/${history[0].asOf}` : undefined,
+      variableMeasured: ["累计出口排名", "精准累计出口额", "累计出口额区间"],
+      creator: { "@type": "Organization", name: "OXOX 乐清出口数据", url: "https://oxox.cn/" },
+    },
+    ...(companySchema ? [companySchema] : []),
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "首页", item: "https://oxox.cn/" },
+        { "@type": "ListItem", position: 2, name: "乐清出口排名", item: "https://oxox.cn/yueqing-export-ranking/" },
+        { "@type": "ListItem", position: 3, name: company.company_name, item: canonical.href },
+      ],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content={description}>
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <ThemeHead />
+  <link rel="canonical" href={canonical}>
+  <title>{title}</title>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema).replace(/</g, "\\u003c")} />
+</head>
+<body>
+  <div class="reference-wrap">
+    <SiteHeader active="ranking" />
+    <main class="company-detail">
+      <nav class="detail-breadcrumb" aria-label="面包屑">
+        <a href="/">OXOX</a><span aria-hidden="true">›</span>
+        <a href="/">出口排名</a><span aria-hidden="true">›</span>
+        <span aria-current="page">{company.company_name}</span>
+      </nav>
+
+      <section class="detail-hero" aria-labelledby="company-name">
+        <div class="company-identity">
+          <div class:list={["company-mark", { "has-icon": companyIcon, "dark-logo": companyIcon && hasDarkCompanyIcon(company.company_id) }]} aria-hidden="true">
+            {companyIcon ? <img src={companyIcon} alt="" width="64" height="64" /> : <span>{companyInitials}</span>}
+          </div>
+          <div class="company-title-group">
+            <h1 id="company-name">{company.company_name}</h1>
+            <p class="company-subtitle">乐清出口企业 · 历史排名与累计出口数据</p>
+            <div class="company-tags">
+              <span class="company-tag">{company.company_id}</span>
+              {details?.industry && <span class="company-tag industry-tag">{details.industry}</span>}
+              {isAmbiguous(latest) && <span class="company-tag">源表含多条记录</span>}
+            </div>
+          </div>
+        </div>
+        <div class="company-actions">
+          {primaryWebsite && <a class="detail-button primary" href={primaryWebsite} target="_blank" rel="nofollow noopener noreferrer">访问官网 <span aria-hidden="true">↗</span></a>}
+  <a class="detail-button" href="/" data-ranking-back>← 返回排行榜</a>
+        </div>
+      </section>
+
+      <section class="detail-stats" aria-label="企业出口数据摘要">
+        <div class="detail-stat">
+          <span class="stat-label">最近收录排名</span>
+          <strong class="stat-value">{latest ? `#${latest.rank.toLocaleString("en-US")}` : "—"}</strong>
+          <span class="stat-caption">{latest?.periodLabel ?? "尚无排名记录"}</span>
+        </div>
+        <div class="detail-stat amount-stat">
+          <span class="stat-label">{latest?.amountLabel ? "累计出口额" : "累计出口额区间"}</span>
+          <strong class="stat-value">{latestValue}</strong>
+          <span class="stat-caption">{amountUnit}{amountUnit && " · "}{latest?.amountLabel ? "源表精准数值" : "源表金额区间"}</span>
+        </div>
+        <div class="detail-stat">
+          <span class="stat-label">名次变化</span>
+          <strong class:list={["stat-value", "rank-movement", rankState, { "unavailable": rankDelta === null }]}>{rankDelta === null ? previousUnavailableCopy : rankCopy}</strong>
+          <span class="stat-caption">{rankComparison}</span>
+        </div>
+        <div class="detail-stat">
+          <span class="stat-label">历史记录</span>
+          <strong class="stat-value">{history.length.toLocaleString("en-US")} <small>条</small></strong>
+          <span class="stat-caption">覆盖 {uniqueDates.length} 个累计周期</span>
+        </div>
+      </section>
+
+      <section class="detail-panel overview-panel" aria-labelledby="overview-title">
+        <h2 id="overview-title">概况</h2>
+        {latest ? <>
+          <p><strong>{company.company_name}</strong>在 <strong>{latest.periodLabel}</strong>的乐清企业累计出口榜单中排名 <strong>第 {latest.rank} 名</strong>，累计出口额{latest.amountLabel ? "为" : "区间为"} <strong>{latestAmount}</strong>。</p>
+          {rankDelta !== null && previous && <p>与 {previous.periodLabel}的第 {previous.rank} 名相比，{rankDelta > 0 ? `排名上升 ${rankDelta} 名` : rankDelta < 0 ? `排名下降 ${Math.abs(rankDelta)} 名` : "排名持平"}。名次变化反映榜单位置变化。</p>}
+          {!currentAugust && <p class="overview-meta">2026 年 1—8 月源表未收录该企业；这不表示出口额为零。</p>}
+          <p class="overview-meta">已收录 {history.length} 条出口记录，覆盖 {uniqueDates.length} 个累计周期。最近收录截至 <time datetime={latest.asOf}>{latest.asOf}</time>。</p>
+        </> : <p>该企业已建立出口排名档案，暂无已收录的出口记录。</p>}
+      </section>
+
+      <section class="detail-panel history-panel" aria-labelledby="history-title">
+        <div class="detail-section-heading">
+          <h2 id="history-title">累计出口排名变化</h2>
+          <span>最新月份 {latestTableDate}</span>
+        </div>
+        {chartPoints.length > 1 && <>
+          <p class="chart-explanation">近 {chartDates.length} 期趋势 · 名次越小，排名越靠前</p>
+          <div class="rank-chart" role="img" aria-label={`${company.company_name}累计出口排名趋势，完整数值见下方历史表格。`}>
+            <svg viewBox="0 0 920 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              {chartTicks.map((tick) => {
+                const y = 32 + ((tick - chartMin) / Math.max(1, chartMax - chartMin)) * 138;
+                return <g><line class="chart-gridline" x1="62" y1={y} x2="886" y2={y} /><text class="chart-axis" x="47" y={y + 4} text-anchor="end">#{tick}</text></g>;
+              })}
+              <polyline class="chart-line" points={chartPoints.map((point) => `${point.x},${point.y}`).join(" ")} />
+              {chartPoints.map((point, index) => <g>
+                <circle class:list={["chart-point", { "latest-point": index === chartPoints.length - 1 }]} cx={point.x} cy={point.y} r="4" />
+                <text class="chart-point-value" x={point.x} y={point.y - 12} text-anchor="middle">{point.rank}</text>
+                <text class="chart-axis chart-date" x={point.x} y="206" text-anchor="middle">{point.label}</text>
+              </g>)}
+            </svg>
+          </div>
+        </>}
+        <CompanyHistoryTable companyName={company.company_name} records={latestHistory} isAmbiguous={isAmbiguous} />
+        {olderHistory.length > 0 && <details class="older-history">
+          <summary>查看历史月份（{olderHistory.length} 条，{uniqueDates.length - 1} 个周期）</summary>
+          <CompanyHistoryTable companyName={company.company_name} records={olderHistory} isAmbiguous={isAmbiguous} />
+        </details>}
+        <p class="detail-table-note">同一累计周期的精准数值与区间数据分别保留。{chartPoints.length > 1 && "趋势图每期展示一条记录，同期优先采用精准榜单；源表多条记录的周期不参与趋势和名次比较。"}</p>
+      </section>
+
+      {facts.length > 0 && <section class="detail-panel facts-panel" aria-labelledby="facts-title">
+        <div class="detail-section-heading"><h2 id="facts-title">企业基本信息</h2>{details?.checked_at && <span>核验于 {details.checked_at}</span>}</div>
+        <dl class="company-facts-list">
+          {facts.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+        </dl>
+        <p class="detail-table-note">企业信息按公开资料整理；空白项表示暂未收录。</p>
+        {validSources.length > 0 && <div class="detail-sources"><span>资料来源</span>{validSources.map((source) => <a href={source.url} target="_blank" rel="nofollow noopener noreferrer">{source.label} ↗</a>)}</div>}
+      </section>}
+
+      {validLinks.length > 0 && <section class="detail-panel links-panel" aria-labelledby="links-title">
+        <h2 id="links-title">企业网站</h2>
+        <div class="company-websites">
+          {validLinks.map((link) => <a href={link.url} target="_blank" rel="nofollow noopener noreferrer"><span><strong>{link.label}</strong><small>{link.domain}</small></span><span aria-hidden="true">↗</span></a>)}
+        </div>
+      </section>}
+
+      <section class="detail-panel methodology-panel" aria-labelledby="methodology-title">
+        <h2 id="methodology-title">数据说明</h2>
+        <p>本页排名和出口额按各期源表展示。所有周期均为年初至所示月份的累计数据；金额单位为万美元，精准数值与金额区间分别标注。</p>
+        <p>企业名称通过稳定企业编号关联历史记录。未收录的周期不作零值处理；源表同一企业有多条记录时，保留原始条目，并暂停相关周期的名次比较。名次升降不代表出口额同比增长。</p>
+        <a class="detail-text-link" href="/about-data/">查看数据来源与口径 →</a>
+      </section>
+      <div class="detail-bottom-nav"><a href="/" data-ranking-back>← 返回出口排行榜</a><span>{company.company_id}</span></div>
+    </main>
+    <SiteFooter />
+  </div>
+</body>
+</html>
+<script>
+  const backLinks = document.querySelectorAll<HTMLElement>("[data-ranking-back]");
+  const restore = (() => {
+    try {
+      const entries = [
+        JSON.parse(sessionStorage.getItem("oxox-ranking-restore") || "null"),
+        JSON.parse(sessionStorage.getItem("oxox-ranking-archive-restore") || "null"),
+      ].filter((entry) => entry?.href);
+      return entries.sort((left, right) => (right.savedAt || 0) - (left.savedAt || 0))[0] || null;
+    } catch { return null; }
+  })();
+  backLinks.forEach(link => {
+    if (restore?.href) link.setAttribute("href", `${restore.href}${restore.hash || ""}`);
+  });
+</script>

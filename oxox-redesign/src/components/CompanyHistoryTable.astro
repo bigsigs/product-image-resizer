@@ -1,0 +1,31 @@
+---
+type HistoryRecord = {
+  periodId: string;
+  periodLabel: string;
+  asOf: string;
+  rank: number;
+  bandLabel?: string;
+  amountLabel?: string;
+};
+
+interface Props {
+  companyName: string;
+  records: HistoryRecord[];
+  isAmbiguous: (record: HistoryRecord) => boolean;
+}
+const { companyName, records, isAmbiguous } = Astro.props;
+---
+        <div class="history-table-scroll">
+          <table class="history-table">
+            <caption class="detail-sr-only">{companyName}累计周期出口排名记录</caption>
+            <thead><tr><th scope="col">累计周期</th><th scope="col">排名</th><th scope="col">累计出口额</th><th scope="col">数据口径</th></tr></thead>
+            <tbody>
+              {records.map((record: HistoryRecord) => <tr data-period-id={record.periodId} data-source-duplicate={isAmbiguous(record) ? "true" : "false"}>
+                <th scope="row"><span class="history-period">{record.periodLabel.replace(/（精准数值）|（区间数据）/g, "")}</span><time datetime={record.asOf}>{record.asOf}</time></th>
+                <td><strong class="table-rank">#{record.rank}</strong>{isAmbiguous(record) && <small class="duplicate-note">源表多条</small>}</td>
+                <td class="history-amount">{record.amountLabel ?? record.bandLabel ?? "未提供"}</td>
+                <td><span class:list={["precision-tag", { "is-exact": record.amountLabel }]}>{record.amountLabel ? "精准数值" : "金额区间"}</span></td>
+              </tr>)}
+            </tbody>
+          </table>
+        </div>

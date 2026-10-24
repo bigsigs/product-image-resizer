@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.worktrees/
+.logo-candidates/
+output/
+review/
+__pycache__/
+*.pyc

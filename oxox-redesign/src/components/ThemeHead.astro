@@ -1,0 +1,9 @@
+<meta name="color-scheme" content="light dark" />
+<script is:inline>
+  try {
+    const theme = localStorage.getItem("oxox-theme");
+    document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+  } catch {
+    document.documentElement.dataset.theme = "light";
+  }
+</script>

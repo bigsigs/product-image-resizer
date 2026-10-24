@@ -1,0 +1,54 @@
+---
+import Wordmark from "./Wordmark.astro";
+interface Props { active?: string; showTheme?: boolean; }
+const { active = "", showTheme = true } = Astro.props;
+const links = [
+  { key: "ranking", href: "/", label: "出口排行榜" },
+  { key: "seo", href: "/yueqing-seo/", label: "SEO 榜单" },
+  { key: "articles", href: "/articles/", label: "外贸月报" },
+  { key: "tools", href: "/tools/", label: "辅助工具" },
+  { key: "about-data", href: "/about-data/", label: "数据说明" },
+];
+---
+<header class="ref-header">
+  <a class="ref-brand" href="/" aria-label="OXOX 乐清出口数据首页"><Wordmark class="ref-wordmark" /><span>乐清出口数据</span></a>
+  <div class="ref-header-actions">
+    <details class="ref-menu">
+      <summary>菜单 <span aria-hidden="true">⌄</span></summary>
+      <nav class="ref-nav" aria-label="主菜单">
+        {links.map(link => <a href={link.href} aria-current={active === link.key ? "page" : undefined}>{link.label}<span aria-hidden="true">{active === link.key ? "●" : "↗"}</span></a>)}
+      </nav>
+    </details>
+    {showTheme && <button class="ref-theme" type="button" data-theme-toggle aria-label="切换深色主题" aria-pressed="false"><span aria-hidden="true">◐</span> 主题</button>}
+  </div>
+</header>
+<style>
+  .ref-header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;margin:0;border:0;background:transparent;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,"PingFang SC",sans-serif;position:relative;z-index:20;color:var(--ink,#0d0d0d)}
+  .ref-brand{display:inline-flex;align-items:center;gap:12px;color:inherit;text-decoration:none;flex-shrink:0}.ref-brand :global(.ref-wordmark){display:block;width:83px;height:26px}.ref-brand>span{color:var(--ink3,#8a8984);font-size:11px;border-left:1px solid var(--line,#e6e5e1);padding-left:12px;letter-spacing:.03em}.ref-header-actions{display:flex;gap:8px;align-items:center}.ref-menu{position:relative}.ref-menu summary,.ref-theme{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--panel,#fff);color:var(--ink2,#52514e);border:1px solid var(--line,#e6e5e1);border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer;white-space:nowrap;min-height:33px}.ref-menu summary::-webkit-details-marker{display:none}.ref-menu[open] summary{color:var(--ink,#0d0d0d)}.ref-nav{position:absolute;right:0;top:calc(100% + 8px);display:grid;width:190px;background:var(--panel,#fff);border:1px solid var(--line,#e6e5e1);border-radius:12px;padding:6px;box-shadow:0 8px 28px #0000000b}.ref-nav a{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 12px;border-radius:7px;text-decoration:none;font-size:12px;color:var(--ink2,#52514e)}.ref-nav a:hover,.ref-nav a[aria-current="page"]{background:var(--panel2,#f3f3f0);color:var(--ink,#0d0d0d)}.ref-nav a>span{font-size:10px;color:var(--ink3,#8a8984)}.ref-nav a[aria-current="page"]>span{color:#14894a}.ref-header a:focus-visible,.ref-header button:focus-visible,.ref-header summary:focus-visible{outline:2px solid #2a78d6;outline-offset:3px}
+  @media(max-width:520px){.ref-brand>span{display:none}.ref-brand :global(.ref-wordmark){width:74px;height:23px}.ref-header{padding:16px 0}.ref-nav{right:-2px}}
+</style>
+<script>
+  const updateThemeButtons = () => {
+    const dark = document.documentElement.dataset.theme === "dark";
+    document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach(button => {
+      button.setAttribute("aria-pressed", String(dark));
+      button.setAttribute("aria-label", dark ? "切换浅色主题" : "切换深色主题");
+    });
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach(button => button.addEventListener("click", () => {
+    const theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem("oxox-theme", theme); } catch {}
+    updateThemeButtons();
+  }));
+  updateThemeButtons();
+  document.addEventListener("click", event => {
+    document.querySelectorAll<HTMLDetailsElement>(".ref-menu[open]").forEach(menu => {
+      if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+    });
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    document.querySelectorAll<HTMLDetailsElement>(".ref-menu[open]").forEach(menu => { menu.open = false; menu.querySelector<HTMLElement>("summary")?.focus(); });
+  });
+</script>

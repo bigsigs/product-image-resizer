@@ -1,0 +1,61 @@
+const tools = [
+  {
+    title: "商品图尺寸处理",
+    description: "批量统一商品图尺寸、留白与背景，浏览器本地处理，图片无需上传服务器。",
+    category: "image",
+    url: "product-image-resizer/",
+    status: "live",
+    featured: true,
+    icon: "image",
+  },
+  {
+    title: "WebP 转换与重命名",
+    description: "单张或批量转换 WebP，压缩体积、统一命名，并支持 ZIP 一键打包下载。",
+    category: "image",
+    url: "webp-converter/",
+    status: "live",
+    icon: "convert",
+  },
+  {
+    title: "乐清出口排名",
+    description: "查询乐清企业累计出口排名与出口额区间，后续数据将在同一企业档案中持续更新。",
+    category: "data",
+    url: "yueqing-export-ranking/",
+    status: "live",
+    icon: "ranking",
+  },
+  {
+    title: "乐清 SEO 榜单",
+    description: "观察乐清电气企业自然流量、关键词、链接资产与 AI 品牌曝光的相对表现。",
+    category: "data",
+    url: "yueqing-seo/",
+    status: "live",
+    icon: "ranking",
+  },
+  {
+    title: "外贸邮件润色",
+    description: "让英文邮件更自然、专业，也更符合真实商务沟通语气。",
+    category: "copy",
+    url: "",
+    status: "planned",
+    icon: "mail",
+  },
+  {
+    title: "FOB 利润计算器",
+    description: "快速拆解采购、物流、平台与汇率成本，看清每一单的真实利润。",
+    category: "calculate",
+    url: "",
+    status: "planned",
+    icon: "calculate",
+  },
+  {
+    title: "产品标题优化",
+    description: "整理产品卖点与关键词，生成更清楚、更适合海外买家的标题。",
+    category: "copy",
+    url: "",
+    status: "planned",
+    icon: "text",
+  },
+];
+
+export default tools;

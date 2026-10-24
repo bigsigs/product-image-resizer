@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>OXOX</title>
+  <rect width="64" height="64" fill="#fff"/>
+  <circle cx="32" cy="32" r="21" fill="none" stroke="#18201d" stroke-linecap="round" stroke-width="7"/>
+  <circle cx="32" cy="32" r="5.5" fill="#ff5c35"/>
+</svg>

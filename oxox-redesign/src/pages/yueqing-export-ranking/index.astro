@@ -1,0 +1,1146 @@
+---
+import "../../styles/reference.css";
+import "../../styles/reference-pages.css";
+import SiteHeader from "../../components/SiteHeader.astro";
+import companies from "../../../public/data/yueqing-export-ranking/companies.json";
+
+const companyCount = new Intl.NumberFormat("en-US").format(companies.length);
+const datasetSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dataset",
+      "@id": "https://oxox.cn/yueqing-export-ranking/#dataset",
+      name: "乐清企业累计出口排名数据",
+      url: "https://oxox.cn/yueqing-export-ranking/",
+      description: "乐清企业累计出口排名、精准累计出口额、出口额区间和历史名次变化查询。",
+      temporalCoverage: "2025-06-30/2026-08-31",
+      variableMeasured: ["累计出口排名", "精准累计出口额", "累计出口额区间"],
+      creator: { "@type": "Organization", name: "OXOX 乐清出口数据", url: "https://oxox.cn/" },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "首页", item: "https://oxox.cn/" },
+        { "@type": "ListItem", position: 2, name: "乐清出口排名", item: "https://oxox.cn/yueqing-export-ranking/" },
+      ],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="乐清企业出口额累计排名查询，当前收录 2026 年 1—8 月累计出口额区间、1—6 月精准出口额及历史数据。">
+  <meta name="theme-color" content="#f2f0e8">
+  <link rel="canonical" href="https://oxox.cn/yueqing-export-ranking/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>乐清出口排名｜2026年1—8月累计出口额｜OXOX</title>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(datasetSchema).replace(/</g, "\\u003c")}></script>
+  <style is:global>
+    :root {
+      --paper: #f2f0e8;
+      --paper-light: #faf9f4;
+      --ink: #18201d;
+      --muted: #68716c;
+      --green: #0b634b;
+      --green-dark: #064636;
+      --orange: #ff5c35;
+      --yellow: #f5d451;
+      --line: rgba(24, 32, 29, .16);
+      --shadow: 0 24px 70px rgba(24, 32, 29, .12);
+      --serif: "Iowan Old Style", "Baskerville", "Songti SC", "STSong", serif;
+      --sans: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--paper); scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(90deg, transparent 49.9%, rgba(24,32,29,.035) 50%, transparent 50.1%),
+        radial-gradient(circle at 9% 0%, rgba(255,255,255,.95), transparent 30rem),
+        var(--paper);
+      background-size: 56px 100%, auto, auto;
+    }
+
+    body.drawer-open { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { color: inherit; font: inherit; }
+    button { cursor: pointer; }
+    svg { display: block; }
+    [hidden] { display: none !important; }
+    .shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      opacity: .03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 92px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 14px; }
+    .wordmark { --dot-travel: 10px; width: 126px; overflow: visible; }
+    .wordmark .logo-dot {
+      transform-box: fill-box;
+      transform-origin: center;
+      will-change: transform;
+    }
+    .brand:hover .dot-warm { animation: dotOrbitClockwise .9s cubic-bezier(.45,0,.2,1); }
+    .brand:hover .dot-green { animation: dotOrbitCounter .9s .06s cubic-bezier(.45,0,.2,1); }
+    .brand-label {
+      padding-left: 14px;
+      border-left: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .12em;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 15px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--paper-light);
+      font-size: 12px;
+      font-weight: 700;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .back-link:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--yellow); }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .back-link.secondary { border-color: var(--line); background: transparent; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 60px;
+      padding: 72px 0 56px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 24px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 7px;
+      border-radius: 100px;
+      background: var(--orange);
+    }
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(50px, 6.5vw, 88px);
+      font-weight: 400;
+      letter-spacing: -.065em;
+      line-height: .96;
+    }
+    h1 em { color: var(--green); font-weight: 400; }
+    .hero-note {
+      max-width: 680px;
+      margin: 30px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+    .period-card {
+      align-self: end;
+      padding: 28px;
+      border: 1px solid var(--ink);
+      background: var(--yellow);
+      box-shadow: 11px 11px 0 var(--green);
+      transform: rotate(1.5deg);
+    }
+    .period-card small {
+      display: block;
+      margin-bottom: 28px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+    }
+    .period-card strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 400;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .period-card span { display: block; margin-top: 14px; font-size: 12px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .stat { min-height: 122px; padding: 26px; border-left: 1px solid var(--line); }
+    .stat b {
+      display: block;
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -.04em;
+    }
+    .stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+    .stat-note b { color: var(--orange); font-size: 23px; line-height: 1.4; }
+
+    .ranking-section { padding: 72px 0 110px; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 32px;
+    }
+    .section-kicker {
+      margin: 0 0 10px;
+      color: var(--orange);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(38px, 4.4vw, 60px);
+      font-weight: 400;
+      letter-spacing: -.05em;
+    }
+    .period-select {
+      min-width: 210px;
+      padding: 12px 38px 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--paper-light);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(250px, 1fr) auto auto;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(250,249,244,.74);
+    }
+    .search-wrap { position: relative; }
+    .search-wrap svg {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      width: 18px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .search-wrap input, .controls select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: white;
+    }
+    .search-wrap input { padding: 0 44px; }
+    .search-wrap input:focus, .controls select:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+    .controls select { min-width: 180px; padding: 0 36px 0 13px; font-size: 12px; }
+
+    .result-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 54px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .result-bar b { color: var(--ink); }
+    .clear-btn {
+      border: 0;
+      background: transparent;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--ink); border-top: 0; background: var(--paper-light); }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--ink);
+      background: var(--ink);
+      color: rgba(255,255,255,.66);
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+    }
+    th:first-child { width: 110px; }
+    th:nth-child(3) { width: 200px; }
+    th:nth-child(4), th:nth-child(5) { width: 150px; }
+    td { padding: 17px 18px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    tbody tr { cursor: pointer; transition: color .18s ease, background .18s ease; }
+    tbody tr:hover, tbody tr:focus-within { color: white; background: var(--green); }
+    tbody tr:last-child td { border-bottom: 0; }
+    .rank-number { font-family: var(--serif); font-size: 22px; }
+    .company-button {
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      font-weight: 700;
+    }
+    .company-id { display: block; margin-top: 5px; color: currentColor; font-size: 9px; letter-spacing: .1em; opacity: .54; }
+    .band-pill {
+      display: inline-flex;
+      padding: 6px 9px;
+      border: 1px solid currentColor;
+      border-radius: 100px;
+      white-space: nowrap;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .rank-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .rank-change.up { color: var(--orange); }
+    .rank-change.down { color: var(--green); }
+    .rank-change.flat, .rank-change.pending, .rank-change.review { color: var(--muted); }
+    .rank-change.new { padding: 5px 8px; border-radius: 99px; color: var(--ink); background: var(--yellow); }
+    tr:hover .rank-change:not(.new) { color: rgba(255,255,255,.82); }
+    .empty-row { height: 180px; color: var(--muted); text-align: center; cursor: default; }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 80px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      background: rgba(250,249,244,.5);
+    }
+    .page-btn {
+      display: grid;
+      place-items: center;
+      min-width: 36px;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-size: 11px;
+    }
+    .page-btn:hover:not(:disabled), .page-btn.active { color: white; background: var(--green); }
+    .page-btn:disabled { cursor: default; opacity: .34; }
+    .page-gap { padding: 0 4px; color: var(--muted); }
+
+    .data-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 17px;
+      margin-top: 24px;
+      padding: 20px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255,255,255,.48);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .data-note b { color: var(--ink); }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(24,32,29,.52);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .drawer-backdrop.open { opacity: 1; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 41;
+      width: min(520px, 100%);
+      height: 100dvh;
+      padding: 34px;
+      overflow-y: auto;
+      background: var(--paper-light);
+      box-shadow: -24px 0 70px rgba(24,32,29,.2);
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1);
+    }
+    .drawer.open { transform: none; }
+    .drawer-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .drawer-label { color: var(--orange); font-size: 10px; font-weight: 800; letter-spacing: .17em; }
+    .drawer-close {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: transparent;
+      font-size: 20px;
+    }
+    .drawer h3 {
+      margin: 62px 0 12px;
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 52px);
+      font-weight: 400;
+      letter-spacing: -.05em;
+      line-height: 1.08;
+    }
+    .drawer-company-id { color: var(--muted); font-size: 10px; letter-spacing: .14em; }
+    .drawer-rank {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 38px;
+      border: 1px solid var(--ink);
+    }
+    .drawer-rank > div { padding: 22px; }
+    .drawer-rank > div + div { border-left: 1px solid var(--ink); background: var(--yellow); }
+    .drawer-rank small { display: block; margin-bottom: 10px; color: var(--muted); font-size: 10px; }
+    .drawer-rank strong { font-family: var(--serif); font-size: 30px; font-weight: 400; }
+    .company-links {
+      margin-top: 16px;
+      border: 1px solid var(--ink);
+      background: var(--paper-light);
+    }
+    .company-links-heading {
+      margin: 0;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .14em;
+    }
+    .company-external-link {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      min-height: 72px;
+      padding: 15px 16px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .company-external-link + .company-external-link { border-top: 1px solid var(--line); }
+    .company-external-link:hover,
+    .company-external-link:focus-visible {
+      color: var(--paper-light);
+      background: var(--green);
+      outline: none;
+    }
+    .company-link-label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .company-link-domain {
+      display: block;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color .2s ease;
+    }
+    .company-external-link:hover .company-link-domain,
+    .company-external-link:focus-visible .company-link-domain { color: rgba(250,249,244,.72); }
+    .company-link-arrow {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-size: 16px;
+    }
+    .history { margin-top: 42px; }
+    .history h4 { margin: 0 0 18px; font-size: 11px; letter-spacing: .13em; }
+    .history-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 16px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .history-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(11,99,75,.12); }
+    .history-item strong { font-family: var(--serif); font-size: 20px; font-weight: 400; }
+    .future-history { color: var(--muted); }
+    .future-history .history-dot { background: transparent; border: 1px solid var(--muted); box-shadow: none; }
+    .drawer-profile-link {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      margin-top: 30px;
+      padding: 17px 18px;
+      border: 1px solid var(--green-dark);
+      color: white;
+      background: var(--green);
+      box-shadow: 6px 6px 0 var(--yellow);
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .drawer-profile-link small,
+    .drawer-profile-link strong { display: block; }
+    .drawer-profile-link small {
+      margin-bottom: 6px;
+      color: rgba(255,255,255,.64);
+      font-size: 8px;
+      font-weight: 850;
+      letter-spacing: .16em;
+    }
+    .drawer-profile-link strong { font-family: var(--serif); font-size: 22px; font-weight: 400; }
+    .drawer-profile-arrow { font-family: var(--serif); font-size: 27px; transition: transform .2s ease; }
+    .drawer-profile-link:hover,
+    .drawer-profile-link:focus-visible {
+      color: var(--ink);
+      background: var(--yellow);
+      box-shadow: 8px 8px 0 var(--orange);
+      outline: 0;
+      transform: translate(-2px, -2px);
+    }
+    .drawer-profile-link:hover small,
+    .drawer-profile-link:focus-visible small { color: rgba(24,32,29,.58); }
+    .drawer-profile-link:hover .drawer-profile-arrow,
+    .drawer-profile-link:focus-visible .drawer-profile-arrow { transform: translateX(5px); }
+    .review-note {
+      margin-top: 28px;
+      padding: 16px;
+      border: 1px solid var(--orange);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 42px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @keyframes dotOrbitClockwise {
+      0%,100% { transform: translate(0,0); }
+      25% { transform: translate(var(--dot-travel),0); }
+      50% { transform: translate(0,var(--dot-travel)); }
+      75% { transform: translate(calc(var(--dot-travel) * -1),0); }
+    }
+    @keyframes dotOrbitCounter {
+      0%,100% { transform: translate(0,0); }
+      25% { transform: translate(calc(var(--dot-travel) * -1),0); }
+      50% { transform: translate(0,calc(var(--dot-travel) * -1)); }
+      75% { transform: translate(var(--dot-travel),0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    @media (max-width: 840px) {
+      .hero { grid-template-columns: 1fr; }
+      .period-card { max-width: 390px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .search-wrap { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 28px, 520px); }
+      .site-header { height: 76px; }
+      .wordmark { width: 105px; }
+      .brand-label { display: none; }
+      .header-actions { gap: 6px; }
+      .back-link { gap: 5px; padding: 8px 10px; font-size: 10px; }
+      .back-link.secondary svg { display: none; }
+      .hero { gap: 42px; padding: 48px 0; }
+      h1 { font-size: clamp(44px, 13vw, 64px); }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stat { min-height: 108px; padding: 20px 15px; }
+      .stat b { font-size: 27px; }
+      .stat-note b { font-size: 17px; }
+      .ranking-section { padding: 58px 0 76px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .period-select { width: 100%; }
+      .controls { grid-template-columns: 1fr; }
+      .search-wrap { grid-column: auto; }
+      .controls select { min-width: 0; }
+      th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { display: none; }
+      #yearChangeHeading { font-size: 0; }
+      #yearChangeHeading::after { content: "同比"; font-size: 10px; }
+      th:first-child { width: 72px; }
+      th, td { padding: 15px 12px; }
+      .pagination { justify-content: flex-start; padding: 15px; overflow-x: auto; }
+      .drawer { padding: 26px 22px; }
+      .drawer-rank { grid-template-columns: 1fr; }
+      .drawer-rank > div + div { border-top: 1px solid var(--ink); border-left: 0; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="reference-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div style="max-width:1080px;margin:0 auto;padding:0 20px;"><SiteHeader active="ranking" showTheme={false} /></div>
+
+  <main>
+    <section class="hero shell">
+      <div>
+        <p class="eyebrow">Yueqing export index / 2026</p>
+        <h1>乐清企业出口排名</h1>
+        <p class="hero-note">按企业名称快速查询累计排名和出口额区间。当前为 <strong>2026年1—8月累计出口额排名</strong>，并保留 1—7 月、1—6 月精准数值、1—6 月区间数据及更早历史周期，可查看企业名次变化。</p>
+      </div>
+      <div class="period-card">
+        <small>LATEST PERIOD / 最新周期</small>
+        <strong>2026<br>JAN—AUG</strong>
+        <span>1—8 月累计 · 非 8 月单月</span>
+      </div>
+    </section>
+
+    <section class="stats shell" aria-label="数据概览">
+      <div class="stat"><b id="statRecords">3,373</b><span>当前周期记录</span></div>
+      <div class="stat"><b>{companyCount}</b><span>跨期企业档案</span></div>
+      <div class="stat"><b id="statBands">14</b><span id="statBandLabel">当前出口额区间</span></div>
+      <div class="stat stat-note"><b id="statPrecision">区间数据</b><span id="statMetricNote">不推算精确出口额</span></div>
+    </section>
+
+    <section class="ranking-section shell">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker">Ranking database</p>
+          <h2>查找企业排名</h2>
+        </div>
+        <label>
+          <span class="section-kicker">数据周期</span>
+          <select class="period-select" id="periodSelect" aria-label="选择数据周期">
+            <option value="2026-ytd-08" data-period-id="2026-ytd-08">2026年1—8月（最新）</option>
+            <option value="2026-ytd-07" data-period-id="2026-ytd-07">2026年1—7月</option>
+            <option value="2026-ytd-06-exact" data-period-id="2026-ytd-06-exact">2026年1—6月（精准数值）</option>
+            <option value="2026-ytd-06" data-period-id="2026-ytd-06">2026年1—6月（区间数据）</option>
+            <option value="2026-ytd-05" data-period-id="2026-ytd-05">2026年1—5月</option>
+            <option value="2026-ytd-04" data-period-id="2026-ytd-04">2026年1—4月</option>
+            <option value="2026-ytd-03" data-period-id="2026-ytd-03">2026年1—3月</option>
+            <option value="2026-ytd-02" data-period-id="2026-ytd-02">2026年1—2月</option>
+            <option value="2025-ytd-12" data-period-id="2025-ytd-12">2025年1—12月</option>
+            <option value="2025-ytd-11" data-period-id="2025-ytd-11">2025年1—11月</option>
+            <option value="2025-ytd-10" data-period-id="2025-ytd-10">2025年1—10月</option>
+            <option value="2025-ytd-06" data-period-id="2025-ytd-06">2025年1—6月</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="controls">
+        <label class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+          <input id="rankingSearch" type="search" placeholder="输入企业名称、拼音或企业编号" autocomplete="off">
+        </label>
+        <select id="bandFilter" aria-label="筛选出口额区间">
+          <option value="all">全部出口额区间</option>
+        </select>
+        <select id="topFilter" aria-label="筛选排名范围">
+          <option value="0">全部排名</option>
+          <option value="100">Top 100</option>
+          <option value="500">Top 500</option>
+        </select>
+      </div>
+
+      <div class="result-bar">
+        <span id="resultSummary" aria-live="polite">正在载入排名数据…</span>
+        <button class="clear-btn" id="clearFilters" type="button">清除筛选</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>当前排名</th>
+              <th>企业名称</th>
+              <th id="bandHeading">累计出口额区间</th>
+              <th id="rankChangeHeading">较 1—5 月</th>
+              <th id="yearChangeHeading">较去年同期</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody"></tbody>
+        </table>
+      </div>
+      <nav class="pagination" id="pagination" aria-label="排名分页"></nav>
+
+      <aside class="data-note">
+        <b>数据说明</b>
+        <span>新增 <strong>2026年1—8月累计出口额排名</strong>，共 3,373 条记录、14 个出口额区间；源表名次最高到第 3,374 名，但未提供第 43 名，页面保留缺号。1—7 月、<strong>2026年1—6月精准累计出口额排名</strong>（单位：万美元）、<strong>2026年1—6月累计出口额排名（区间数据）</strong>继续独立保留；1—6 月精准源表未提供第 16 名，页面不补号。已收录 2026 年 1—5 月、1—4 月、1—3 月、1—2 月及 2025 年全年、1—11 月、1—10 月、1—6 月历史数据。区间榜单不会估算精确金额；同一周期重复出现的企业名称按源表保留并标记待核对。</span>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <span>OXOX.CN · 乐清出口排名</span>
+    <span id="footerPeriod">数据周期：2026年1—8月累计</span>
+  </footer>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="drawer" id="companyDrawer" aria-hidden="true" aria-labelledby="drawerCompanyName" role="dialog" inert>
+    <div class="drawer-top">
+      <span class="drawer-label">COMPANY PROFILE / 企业档案</span>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="关闭企业详情">×</button>
+    </div>
+    <h3 id="drawerCompanyName"></h3>
+    <div class="drawer-company-id" id="drawerCompanyId"></div>
+    <div class="drawer-rank">
+      <div><small id="drawerPeriodLabel">累计排名</small><strong id="drawerRank"></strong></div>
+      <div><small id="drawerBandLabel">累计出口额区间</small><strong id="drawerBand"></strong></div>
+    </div>
+    <section class="company-links" id="companyLinks" aria-labelledby="companyLinksHeading" hidden>
+      <h4 class="company-links-heading" id="companyLinksHeading">ONLINE PRESENCE / 企业线上入口</h4>
+      <div id="companyLinksList"></div>
+    </section>
+    <div class="history">
+      <h4>RANKING HISTORY / 排名历史</h4>
+      <div id="drawerCurrentRecords"></div>
+    </div>
+    <a class="drawer-profile-link" id="drawerProfileLink" href="/yueqing-export-ranking/">
+      <span>
+        <small>FULL COMPANY PAGE / 完整页面</small>
+        <strong>查看完整企业档案</strong>
+      </span>
+      <span class="drawer-profile-arrow" aria-hidden="true">→</span>
+    </a>
+    <div class="review-note" id="reviewNote" hidden>源表中该企业名称在同一周期出现多次，当前完整保留原始记录，等待核对企业主体。</div>
+  </aside>
+
+  <script>
+    // @ts-nocheck
+    import {
+      buildPeriodIndex,
+      buildCompanySearchIndex,
+      describeRankChange,
+      filterRanking,
+      paginateRanking,
+      getPageWindow,
+      getCompanyRecords,
+    } from "../../lib/ranking-core.js";
+
+    const PERIODS = [
+      { id: "2026-ytd-08", label: "2026年1—8月", shortLabel: "1—8 月", metricLabel: "出口额", file: "2026-ytd-08.json", previous: "2026-ytd-07", yearAgo: null, precision: "range" },
+      { id: "2026-ytd-07", label: "2026年1—7月", shortLabel: "1—7 月", metricLabel: "出口额", file: "2026-ytd-07.json", previous: "2026-ytd-06-exact", yearAgo: null, precision: "range" },
+      { id: "2026-ytd-06-exact", label: "2026年1—6月（精准数值）", shortLabel: "1—6 月精准", metricLabel: "出口额", file: "2026-ytd-06-exact.json", previous: "2026-ytd-05", yearAgo: "2025-ytd-06", precision: "exact" },
+      { id: "2026-ytd-06", label: "2026年1—6月（区间数据）", shortLabel: "1—6 月区间", metricLabel: "出口额", file: "2026-ytd-06.json", previous: "2026-ytd-05", yearAgo: "2025-ytd-06", precision: "range" },
+      { id: "2026-ytd-05", label: "2026年1—5月", shortLabel: "1—5 月", metricLabel: "出口额", file: "2026-ytd-05.json", previous: "2026-ytd-04", yearAgo: null },
+      { id: "2026-ytd-04", label: "2026年1—4月", shortLabel: "1—4 月", metricLabel: "出口额", file: "2026-ytd-04.json", previous: "2026-ytd-03", yearAgo: null },
+      { id: "2026-ytd-03", label: "2026年1—3月", shortLabel: "1—3 月", metricLabel: "出口额", file: "2026-ytd-03.json", previous: "2026-ytd-02", yearAgo: null },
+      { id: "2026-ytd-02", label: "2026年1—2月", shortLabel: "1—2 月", metricLabel: "出口额", file: "2026-ytd-02.json", previous: null, yearAgo: null },
+      { id: "2025-ytd-12", label: "2025年1—12月", shortLabel: "2025 年 1—12 月", metricLabel: "出口额", file: "2025-ytd-12.json", previous: "2025-ytd-11", yearAgo: null },
+      { id: "2025-ytd-11", label: "2025年1—11月", shortLabel: "2025 年 1—11 月", metricLabel: "出口额", file: "2025-ytd-11.json", previous: "2025-ytd-10", yearAgo: null },
+      { id: "2025-ytd-10", label: "2025年1—10月", shortLabel: "2025 年 1—10 月", metricLabel: "出口额", file: "2025-ytd-10.json", previous: "2025-ytd-06", yearAgo: null },
+      { id: "2025-ytd-06", label: "2025年1—6月", shortLabel: "2025 年 1—6 月", metricLabel: "出口额", file: "2025-ytd-06.json", previous: null, yearAgo: null },
+    ];
+    const state = {
+      datasets: new Map(),
+      periodId: "2026-ytd-08",
+      records: [],
+      bands: [],
+      previousIndex: new Map(),
+      yearAgoIndex: new Map(),
+      searchIndex: new Map(),
+      companyProfiles: {},
+      query: "",
+      band: "all",
+      top: 0,
+      page: 1,
+      pageSize: 50,
+    };
+    const search = document.querySelector("#rankingSearch");
+    const bandFilter = document.querySelector("#bandFilter");
+    const topFilter = document.querySelector("#topFilter");
+    const periodSelect = document.querySelector("#periodSelect");
+    const tableBody = document.querySelector("#rankingTableBody");
+    const summary = document.querySelector("#resultSummary");
+    const pagination = document.querySelector("#pagination");
+    const drawer = document.querySelector("#companyDrawer");
+    const backdrop = document.querySelector("#drawerBackdrop");
+    const closeButton = document.querySelector("#drawerClose");
+    const profileLink = document.querySelector("#drawerProfileLink");
+    const initialQuery = new URLSearchParams(location.search).get("q")?.trim() || "";
+    let lastFocused = null;
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    })[character]);
+
+    function getSafeExternalUrl(value) {
+      try {
+        const url = new URL(value);
+        return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderCompanyLinks(companyId) {
+      const links = (state.companyProfiles[companyId]?.links || [])
+        .map((link) => ({ ...link, safeUrl: getSafeExternalUrl(link.url) }))
+        .filter((link) => link.safeUrl);
+      const section = document.querySelector("#companyLinks");
+      const list = document.querySelector("#companyLinksList");
+
+      section.hidden = links.length === 0;
+      list.innerHTML = links.map((link) => `
+        <a
+          class="company-external-link"
+          href="${escapeHtml(link.safeUrl)}"
+          target="_blank"
+          rel="nofollow noopener noreferrer"
+          aria-label="访问${escapeHtml(link.label)}：${escapeHtml(link.domain)}（新窗口打开）"
+        >
+          <span>
+            <b class="company-link-label">${escapeHtml(link.label)}</b>
+            <small class="company-link-domain">${escapeHtml(link.domain)}</small>
+          </span>
+          <span class="company-link-arrow" aria-hidden="true">↗</span>
+        </a>
+      `).join("");
+    }
+
+    function renderRankChange(record) {
+      if (!PERIODS.find((period) => period.id === state.periodId)?.previous) {
+        return '<span class="rank-change pending">待导入更早数据</span>';
+      }
+      const change = describeRankChange(record, state.previousIndex);
+      if (change.type === "up") return `<span class="rank-change up">↑ ${change.delta}</span>`;
+      if (change.type === "down") return `<span class="rank-change down">↓ ${change.delta}</span>`;
+      if (change.type === "flat") return '<span class="rank-change flat">— 持平</span>';
+      if (change.type === "review") return '<span class="rank-change review">待核对</span>';
+      return '<span class="rank-change new">新进榜</span>';
+    }
+
+    function renderYearChange(record) {
+      if (!PERIODS.find((period) => period.id === state.periodId)?.yearAgo) {
+        return '<span class="rank-change pending">待导入去年同期</span>';
+      }
+      const change = describeRankChange(record, state.yearAgoIndex);
+      if (change.type === "up") return `<span class="rank-change up">↑ ${change.delta}</span>`;
+      if (change.type === "down") return `<span class="rank-change down">↓ ${change.delta}</span>`;
+      if (change.type === "flat") return '<span class="rank-change flat">— 持平</span>';
+      if (change.type === "review") return '<span class="rank-change review">待核对</span>';
+      return '<span class="rank-change new">去年未收录</span>';
+    }
+
+    function render() {
+      const filtered = filterRanking(state.records, state);
+      const result = paginateRanking(filtered, state.page, state.pageSize);
+      state.page = result.page;
+      summary.innerHTML = `共找到 <b>${result.total.toLocaleString("zh-CN")}</b> 条记录，当前显示 ${result.start}—${result.end}`;
+
+      tableBody.innerHTML = result.items.length
+        ? result.items.map((record) => `
+          <tr data-company-id="${escapeHtml(record.company_id)}">
+            <td><span class="rank-number">${record.rank}</span></td>
+            <td>
+              <a class="company-button" href="/yueqing-export-ranking/company/${escapeHtml(record.company_id)}/" data-company-id="${escapeHtml(record.company_id)}">
+                ${escapeHtml(record.company_name)}
+                <small class="company-id">${escapeHtml(record.company_id)}</small>
+              </a>
+            </td>
+            <td><span class="band-pill">${escapeHtml(record.amount_label || record.band_label)}</span></td>
+            <td>${renderRankChange(record)}</td>
+            <td>${renderYearChange(record)}</td>
+          </tr>
+        `).join("")
+        : '<tr><td class="empty-row" colspan="5">没有找到匹配的企业，请换个关键词试试。</td></tr>';
+
+      const pages = getPageWindow(result.page, result.pageCount);
+      pagination.innerHTML = `
+        <button class="page-btn" type="button" data-page="${result.page - 1}" ${result.page === 1 ? "disabled" : ""}>上一页</button>
+        ${pages.map((page) => page === "…"
+          ? '<span class="page-gap">…</span>'
+          : `<button class="page-btn ${page === result.page ? "active" : ""}" type="button" data-page="${page}" ${page === result.page ? 'aria-current="page"' : ""}>${page}</button>`
+        ).join("")}
+        <button class="page-btn" type="button" data-page="${result.page + 1}" ${result.page === result.pageCount ? "disabled" : ""}>下一页</button>
+      `;
+    }
+
+    function setPeriod(periodId, options = {}) {
+      const period = PERIODS.find((item) => item.id === periodId);
+      const dataset = state.datasets.get(periodId);
+      if (!period || !dataset) return;
+
+      state.periodId = periodId;
+      state.records = dataset.records;
+      state.bands = dataset.bands;
+      state.previousIndex = period.previous
+        ? buildPeriodIndex(state.datasets.get(period.previous)?.records || [])
+        : new Map();
+      state.yearAgoIndex = period.yearAgo
+        ? buildPeriodIndex(state.datasets.get(period.yearAgo)?.records || [])
+        : new Map();
+      state.band = options.band && dataset.bands.some((band) => band.id === options.band) ? options.band : "all";
+      state.page = 1;
+      const isExact = period.precision === "exact";
+      bandFilter.innerHTML = isExact
+        ? '<option value="all">精准数值无需区间筛选</option>'
+        : `<option value="all">全部${period.metricLabel}区间</option>${dataset.bands.map((band) => `<option value="${escapeHtml(band.id)}">${escapeHtml(band.label)}（${band.count}）</option>`).join("")}`;
+      bandFilter.disabled = isExact;
+      bandFilter.value = state.band;
+      document.querySelector("#statRecords").textContent = dataset.records.length.toLocaleString("zh-CN");
+      document.querySelector("#statBands").textContent = isExact ? "万美元" : dataset.bands.length;
+      document.querySelector("#statBandLabel").textContent = isExact ? "精准数值单位" : `当前${period.metricLabel}区间`;
+      document.querySelector("#statPrecision").textContent = isExact ? "精准数值" : "区间数据";
+      document.querySelector("#statMetricNote").textContent = isExact ? "按源表原值展示" : `不推算精确${period.metricLabel}`;
+      document.querySelector("#bandHeading").textContent = isExact ? `累计${period.metricLabel}（万美元）` : `累计${period.metricLabel}区间`;
+      bandFilter.setAttribute("aria-label", `筛选${period.metricLabel}区间`);
+      const previousPeriod = PERIODS.find((item) => item.id === period.previous);
+      document.querySelector("#rankChangeHeading").textContent = previousPeriod
+        ? `较 ${previousPeriod.shortLabel}`
+        : "较更早期";
+      document.querySelector("#footerPeriod").textContent = `数据周期：${period.label}累计`;
+      render();
+    }
+
+    function openCompany(companyId, trigger = null) {
+      const selectedRecords = getCompanyRecords(state.records, companyId);
+      const periodHistory = PERIODS.map((period) => ({
+        period,
+        records: getCompanyRecords(state.datasets.get(period.id)?.records || [], companyId),
+      })).filter((entry) => entry.records.length);
+      if (!periodHistory.length) return;
+      const current = selectedRecords[0] || periodHistory[0].records[0];
+      const selectedPeriod = PERIODS.find((period) => period.id === state.periodId);
+      const displayPeriod = selectedRecords.length ? selectedPeriod : periodHistory[0].period;
+      lastFocused = trigger || document.activeElement;
+      document.querySelector("#drawerCompanyName").textContent = current.company_name;
+      document.querySelector("#drawerCompanyId").textContent = `企业编号 / ${current.company_id}`;
+      document.querySelector("#drawerRank").textContent = `NO. ${current.rank}`;
+      document.querySelector("#drawerBand").textContent = current.amount_label || current.band_label;
+      document.querySelector("#drawerPeriodLabel").textContent = `${displayPeriod.label}累计排名`;
+      document.querySelector("#drawerBandLabel").textContent = displayPeriod.precision === "exact" ? `累计${displayPeriod.metricLabel}（万美元）` : `累计${displayPeriod.metricLabel}区间`;
+      profileLink.href = `/yueqing-export-ranking/company/${companyId}/`;
+      profileLink.setAttribute("aria-label", `查看${current.company_name}完整企业档案`);
+      renderCompanyLinks(companyId);
+      document.querySelector("#drawerCurrentRecords").innerHTML = periodHistory.flatMap(({ period, records }) =>
+        records.map((record) => `
+          <div class="history-item">
+            <i class="history-dot"></i>
+            <span>${period.label}${records.length > 1 ? " · 来源待核对" : ""}<small class="company-id">${period.metricLabel}：${escapeHtml(record.amount_label || record.band_label)}</small></span>
+            <strong>第 ${record.rank} 名</strong>
+          </div>
+        `)
+      ).join("");
+      document.querySelector("#reviewNote").hidden = !periodHistory.some(({ records }) =>
+        records.some((record) => record.source_duplicate)
+      );
+
+      backdrop.hidden = false;
+      drawer.inert = false;
+      drawer.setAttribute("aria-hidden", "false");
+      document.body.classList.add("drawer-open");
+      requestAnimationFrame(() => {
+        backdrop.classList.add("open");
+        drawer.classList.add("open");
+        closeButton.focus();
+      });
+      const selectedUrl = new URL(location.href);
+      selectedUrl.searchParams.set("period", periodId);
+      if (state.band !== "all") selectedUrl.searchParams.set("band", state.band);
+      selectedUrl.hash = `company=${companyId}`;
+      history.replaceState(null, "", selectedUrl);
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      backdrop.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      drawer.inert = true;
+      document.body.classList.remove("drawer-open");
+      const closedUrl = new URL(location.href);
+      closedUrl.hash = "";
+      history.replaceState(null, "", closedUrl);
+      window.setTimeout(() => { backdrop.hidden = true; }, 260);
+      lastFocused?.focus();
+    }
+
+    function resetPageAndRender() {
+      state.page = 1;
+      render();
+    }
+
+    search.addEventListener("input", () => {
+      state.query = search.value;
+      resetPageAndRender();
+      saveArchiveRestorePoint();
+    });
+    bandFilter.addEventListener("change", () => {
+      state.band = bandFilter.value;
+      resetPageAndRender();
+      saveArchiveRestorePoint();
+    });
+    topFilter.addEventListener("change", () => {
+      state.top = Number(topFilter.value);
+      resetPageAndRender();
+      saveArchiveRestorePoint();
+    });
+    const initialParams = new URLSearchParams(location.search);
+    const initialPeriod = PERIODS.some((period) => period.id === initialParams.get("period"))
+      ? initialParams.get("period")
+      : "2026-ytd-08";
+    const initialBand = initialParams.get("band") || "all";
+    const restorePoint = (() => {
+      try {
+        const value = JSON.parse(sessionStorage.getItem("oxox-ranking-archive-restore") || "null");
+        return value?.href === location.pathname && value?.hash === location.hash ? value : null;
+      } catch { return null; }
+    })();
+    if (window.history.state?.oxoxCompany && restorePoint) {
+      history.replaceState(null, "", `/`);
+    }
+    function saveArchiveRestorePoint(extra = {}) {
+      try {
+        sessionStorage.setItem("oxox-ranking-archive-restore", JSON.stringify({
+          href: `${location.pathname}`,
+          hash: `#company=${extra.clickedCompanyId || ""}`,
+          periodId: state.periodId,
+          query: state.query,
+          band: state.band,
+          top: state.top,
+          page: state.page,
+          scrollY: window.scrollY,
+          savedAt: Date.now(),
+          ...extra,
+        }));
+      } catch {}
+    }
+    periodSelect.addEventListener("change", () => {
+      setPeriod(periodSelect.value);
+      const url = new URL(location.href);
+      if (periodSelect.value === "2026-ytd-08") url.searchParams.delete("period");
+      else url.searchParams.set("period", periodSelect.value);
+      url.searchParams.delete("band");
+      history.replaceState(null, "", url);
+      saveArchiveRestorePoint();
+    });
+    document.querySelector("#clearFilters").addEventListener("click", () => {
+      search.value = "";
+      bandFilter.value = "all";
+      topFilter.value = "0";
+      Object.assign(state, { query: "", band: "all", top: 0, page: 1 });
+      render();
+      saveArchiveRestorePoint();
+      search.focus();
+    });
+    tableBody.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-company-id]");
+      if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      saveArchiveRestorePoint({ clickedCompanyId: link.dataset.companyId });
+      event.preventDefault();
+      openCompany(link.dataset.companyId, link);
+    });
+    window.addEventListener("scroll", () => saveArchiveRestorePoint(), { passive: true });
+    window.addEventListener("pagehide", () => saveArchiveRestorePoint());
+    pagination.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-page]");
+      if (!button || button.disabled) return;
+      state.page = Number(button.dataset.page);
+      render();
+      saveArchiveRestorePoint();
+      document.querySelector(".table-wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    closeButton.addEventListener("click", closeDrawer);
+    backdrop.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && drawer.classList.contains("open")) closeDrawer();
+    });
+
+    const datasetsPromise = Promise.all(PERIODS.map(async (period) => {
+      const response = await fetch(`/data/yueqing-export-ranking/${period.file}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return [period.id, await response.json()];
+    }));
+    const companiesPromise = fetch("/data/yueqing-export-ranking/companies.json")
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      });
+    const companyProfilesPromise = fetch("/data/yueqing-export-ranking/company-profiles.json")
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      });
+
+    Promise.all([datasetsPromise, companiesPromise, companyProfilesPromise])
+      .then(([datasets, companies, companyProfiles]) => {
+        state.datasets = new Map(datasets);
+        state.searchIndex = buildCompanySearchIndex(companies);
+        state.companyProfiles = companyProfiles;
+        if (initialQuery) {
+          search.value = initialQuery;
+          state.query = initialQuery;
+        }
+        if (restorePoint) {
+          search.value = restorePoint.query || "";
+          state.query = search.value;
+          topFilter.value = String(restorePoint.top ?? 0);
+          state.top = Number(topFilter.value);
+        }
+        setPeriod(restorePoint?.periodId || initialPeriod, {
+          band: restorePoint?.band || initialBand,
+        });
+        if (restorePoint) {
+          state.page = Number(restorePoint.page) || 1;
+          render();
+          requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, Number(restorePoint.scrollY) || 0)));
+        }
+        const companyId = new URLSearchParams(location.hash.slice(1)).get("company");
+        if (companyId && state.searchIndex.has(companyId)) {
+          location.replace(`/yueqing-export-ranking/company/${companyId}/`);
+        }
+      })
+      .catch(() => {
+        summary.textContent = "排名数据载入失败，请刷新页面重试。";
+        tableBody.innerHTML = '<tr><td class="empty-row" colspan="5">暂时无法读取数据。</td></tr>';
+      });
+  </script>
+</body>
+</html>

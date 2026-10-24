@@ -1,0 +1,127 @@
+.company-detail { padding-top: 27px; }
+.detail-breadcrumb a, .detail-button, .company-websites a, .detail-bottom-nav a { text-decoration:none; }
+.detail-breadcrumb { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:0 0 27px; color:var(--ink3); font-family:var(--mono); font-size:12px; }
+.detail-breadcrumb a { color:var(--ink2); }
+.detail-breadcrumb a:hover, .detail-text-link:hover, .detail-bottom-nav a:hover { color:var(--ink); }
+.detail-breadcrumb [aria-current] { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:65%; }
+.detail-hero { margin-bottom:22px; }
+.company-identity { display:flex; align-items:center; gap:18px; }
+.company-mark { display:flex; align-items:center; justify-content:center; flex:0 0 64px; width:64px; height:64px; overflow:hidden; border:1px solid var(--line); border-radius:15px; background:var(--panel2); color:var(--ink2); font-size:22px; font-weight:700; }
+.company-mark.has-icon { background:#fff; }
+.company-mark img { display:block; width:100%; height:100%; padding:8px; object-fit:contain; }
+.company-title-group { min-width:0; }
+.company-detail h1 { margin:0; color:var(--ink); font-family:var(--mono); font-size:34px; font-weight:750; line-height:1.3; letter-spacing:-1px; overflow-wrap:anywhere; }
+.company-subtitle { margin:7px 0 9px; color:var(--ink2); font-size:14px; line-height:1.5; }
+.company-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.company-tag { display:inline-flex; align-items:center; padding:2px 7px; border-radius:5px; background:var(--panel2); color:var(--ink2); font-family:var(--mono); font-size:11px; line-height:1.5; }
+.company-tag.industry-tag { background:#ededdf; color:#767151; }
+.company-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:18px; }
+.detail-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:38px; padding:8px 14px; border:1px solid var(--line); border-radius:11px; background:var(--panel); color:var(--ink2); font-family:var(--mono); font-size:12px; font-weight:600; line-height:1.5; transition:border-color .15s ease,background .15s ease; }
+.detail-button:hover { border-color:#c4c3be; background:var(--panel2); }
+.detail-button.primary { border-color:var(--ink); background:var(--ink); color:var(--bg); }
+.detail-button.primary:hover { background:var(--ink); opacity:.85; }
+.detail-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:20px; }
+.detail-stat { display:flex; flex-direction:column; align-items:flex-start; min-width:0; min-height:117px; padding:15px 16px; border:1px solid var(--line); border-radius:15px; background:var(--panel); }
+.stat-label { margin-bottom:6px; color:var(--ink3); font-family:var(--mono); font-size:12px; }
+.stat-value { color:var(--ink); font-family:var(--mono); font-size:22px; font-weight:750; line-height:1.4; letter-spacing:-.7px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.stat-value small { font-size:14px; font-weight:500; }
+.stat-caption { display:block; margin-top:4px; color:var(--ink3); font-family:var(--mono); font-size:11px; line-height:1.6; }
+.rank-movement.up { color:var(--up); }
+.rank-movement.down { color:var(--down); }
+.rank-movement.flat, .rank-movement.pending { color:var(--ink2); }
+.rank-movement.unavailable { margin-top:4px; font-size:13px; line-height:1.85; letter-spacing:0; }
+.detail-panel { margin:0 0 14px; padding:21px 22px; border:1px solid var(--line); border-radius:18px; background:var(--panel); }
+.company-detail h2 { margin:0 0 13px; font-family:var(--mono); color:var(--ink); font-size:16px; font-weight:700; line-height:1.5; letter-spacing:0; }
+.detail-panel p { margin:11px 0 0; color:var(--ink2); font-size:13.5px; line-height:1.9; }
+.detail-panel p strong { color:var(--ink); font-weight:650; }
+.detail-panel .overview-meta { color:var(--ink3); font-size:12px; }
+.detail-section-heading { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:13px; }
+.detail-section-heading h2 { margin-bottom:0; }
+.detail-section-heading > span { flex-shrink:0; color:var(--ink3); font-family:var(--mono); font-size:11px; }
+.detail-panel .chart-explanation { margin-top:0; color:var(--ink3); font-family:var(--mono); font-size:11px; }
+.rank-chart { margin:4px -4px 18px; overflow-x:auto; scrollbar-width:thin; }
+.rank-chart svg { display:block; width:100%; min-width:600px; height:auto; }
+.chart-gridline { stroke:var(--line); stroke-width:1; stroke-dasharray:4 5; }
+.chart-axis { fill:var(--ink3); font-family:var(--mono); font-size:12px; }
+.chart-point-value { fill:var(--ink2); font-family:var(--mono); font-size:12px; }
+.chart-line { fill:none; stroke:#858580; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.chart-point { fill:var(--panel); stroke:#858580; stroke-width:2; }
+.chart-point.latest-point { fill:var(--up); stroke:var(--up); }
+.history-table-scroll { width:100%; overflow-x:auto; scrollbar-width:thin; }
+.history-table { width:100%; border-collapse:collapse; text-align:left; font-family:var(--mono); font-size:12px; }
+.history-table th { font-weight:500; }
+.history-table thead th { padding:0 10px 10px; border-bottom:1px solid var(--line); color:var(--ink3); font-size:11px; white-space:nowrap; }
+.history-table thead th:first-child { padding-left:0; }
+.history-table thead th:last-child { padding-right:0; }
+.history-table tbody th, .history-table tbody td { padding:13px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
+.history-table tbody th { padding-left:0; color:var(--ink); }
+.history-table tbody td:last-child { padding-right:0; }
+.history-table tbody tr:last-child th, .history-table tbody tr:last-child td { border-bottom:0; }
+.history-period { display:block; font-size:12px; white-space:nowrap; }
+.history-table time { display:block; margin-top:3px; color:var(--ink3); font-size:10px; }
+.table-rank { color:var(--ink); font-size:14px; font-weight:650; white-space:nowrap; }
+.history-amount { color:var(--ink2); white-space:nowrap; }
+.duplicate-note { display:block; margin-top:4px; color:var(--ink3); font-size:10px; white-space:nowrap; }
+.precision-tag { display:inline-flex; padding:2px 6px; border-radius:5px; background:var(--panel2); color:var(--ink3); font-size:10px; white-space:nowrap; }
+.precision-tag.is-exact { background:#edf4ee; color:#5a7862; }
+.detail-panel .detail-table-note { margin-top:13px; color:var(--ink3); font-family:var(--mono); font-size:11px; line-height:1.8; }
+.company-facts-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 30px; margin:5px 0 0; }
+.company-facts-list > div { display:grid; grid-template-columns:128px minmax(0,1fr); gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:12px; line-height:1.7; }
+.company-facts-list dt { color:var(--ink3); }
+.company-facts-list dd { margin:0; color:var(--ink2); overflow-wrap:anywhere; }
+.detail-sources { display:flex; align-items:center; flex-wrap:wrap; gap:7px 15px; margin-top:14px; padding-top:13px; border-top:1px solid var(--line); color:var(--ink3); font-size:11px; }
+.detail-sources a { color:var(--ink2); text-decoration:underline; text-underline-offset:3px; }
+.company-websites { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.company-websites a { display:flex; align-items:center; justify-content:space-between; gap:15px; min-width:0; padding:12px 14px; border:1px solid var(--line); border-radius:10px; color:var(--ink2); }
+.company-websites a:hover { background:var(--panel2); border-color:#c4c3be; }
+.company-websites strong { display:block; margin-bottom:3px; color:var(--ink); font-size:12px; font-weight:600; }
+.company-websites small { display:block; font-family:var(--mono); font-size:11px; overflow-wrap:anywhere; }
+.detail-text-link { display:inline-block; margin-top:12px; color:var(--ink2); font-family:var(--mono); font-size:12px; text-decoration:underline; text-underline-offset:4px; }
+.detail-bottom-nav { display:flex; align-items:center; justify-content:space-between; gap:15px; margin:24px 0 46px; color:var(--ink3); font-family:var(--mono); font-size:11px; }
+.detail-bottom-nav a { color:var(--ink2); }
+.detail-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.company-detail a:focus-visible { outline:2px solid var(--ink); outline-offset:4px; }
+@media (max-width:760px) {
+  .company-detail { padding-top:22px; }
+  .detail-breadcrumb { gap:7px; margin-bottom:24px; font-size:10px; }
+  .company-detail h1 { font-size:28px; letter-spacing:-.6px; }
+  .detail-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .company-facts-list { grid-template-columns:1fr; }
+  .company-facts-list > div { grid-template-columns:130px minmax(0,1fr); }
+}
+@media (max-width:480px) {
+  .company-identity { align-items:flex-start; gap:12px; }
+  .company-mark { width:50px; height:50px; flex-basis:50px; border-radius:12px; font-size:18px; }
+  .company-mark img { padding:5px; }
+  .company-detail h1 { font-size:24px; line-height:1.35; letter-spacing:-.45px; }
+  .company-subtitle { margin:7px 0; font-size:12px; }
+  .company-tag { font-size:10px; }
+  .company-actions { margin-top:17px; gap:8px; }
+  .detail-button { padding:8px 12px; font-size:11px; }
+  .detail-stat { min-height:114px; padding:13px 12px; border-radius:13px; }
+  .stat-label { font-size:11px; }
+  .stat-value { font-size:22px; }
+  .amount-stat .stat-value { font-size:20px; }
+  .stat-caption { font-size:10px; }
+  .rank-movement.unavailable { font-size:12px; }
+  .detail-panel { padding:18px 16px; border-radius:16px; }
+  .company-detail h2 { font-size:15px; }
+  .detail-panel p { font-size:13px; line-height:1.85; }
+  .detail-section-heading { gap:10px; }
+  .detail-section-heading > span { font-size:10px; }
+  .history-table { min-width:510px; }
+  .history-table thead th, .history-table tbody th, .history-table tbody td { padding-right:12px; }
+  .company-facts-list > div { grid-template-columns:110px minmax(0,1fr); gap:10px; font-size:11px; }
+  .company-websites { grid-template-columns:1fr; }
+  .detail-bottom-nav { margin-bottom:35px; font-size:10px; }
+}
+@media (prefers-reduced-motion:reduce) { .detail-button { transition:none; } }
+
+.older-history { margin-top:16px; border-top:1px solid var(--line); padding-top:12px; }
+.older-history summary { cursor:pointer; color:var(--ink2); font-size:12px; padding:5px 0; }
+.older-history summary:hover { color:var(--c1); }
+.older-history[open] summary { margin-bottom:12px; }
+.older-history summary:focus-visible { outline:2px solid var(--c1); outline-offset:4px; }
+
+/* Verified brand artwork keeps its original aspect ratio. */
+.company-mark.dark-logo, .company-mark.dark-logo img { background:#24334a; }

@@ -1,0 +1,99 @@
+---
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import ThemeHead from "../../components/ThemeHead.astro";
+import tools from "../../data/tools.js";
+import "../../styles/reference.css";
+
+const imageTools = tools.filter((tool) => tool.status === "live" && tool.category === "image");
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "OXOX 图片工具",
+  url: "https://oxox.cn/tools/",
+  inLanguage: "zh-CN",
+  hasPart: imageTools.map((tool) => ({
+    "@type": "SoftwareApplication",
+    name: tool.title,
+    url: `https://oxox.cn/${tool.url}`,
+    description: tool.description,
+    applicationCategory: "UtilitiesApplication",
+    operatingSystem: "Web",
+  })),
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="OXOX 免费图片工具：批量统一商品图尺寸、留白与背景，转换 WebP、压缩图片并统一命名，均在浏览器本地处理。">
+    <link rel="canonical" href="https://oxox.cn/tools/">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>图片工具｜OXOX</title>
+    <ThemeHead />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema).replace(/</g, "\\u003c")}></script>
+  </head>
+  <body>
+    <div class="reference-wrap">
+      <SiteHeader active="tools" />
+      <main class="tools-page">
+        <header class="page-intro">
+          <p class="page-kicker">OXOX / TOOLS</p>
+          <h1>图片工具</h1>
+          <p class="page-description">为商品图片整理准备的两个小工具，直接在浏览器中使用。</p>
+          <span class="privacy-note"><span aria-hidden="true">●</span> 图片在浏览器本地处理，无需上传服务器</span>
+        </header>
+
+        <section class="tool-list" aria-label="可用图片工具">
+          {imageTools.map((tool, index) => (
+            <a class="tool-link" href={`/${tool.url}`}>
+              <span class:list={["tool-icon", { "tool-icon-blue": index === 1 }]} aria-hidden="true">
+                {index === 0 ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m4 16 5-5 4 4 3-3 4 4"/><circle cx="15" cy="8" r="1"/></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg>
+                )}
+              </span>
+              <span class="tool-copy"><h2>{tool.title}</h2><span>{tool.description}</span></span>
+              <span class="tool-open">打开工具 <span aria-hidden="true">↗</span></span>
+            </a>
+          ))}
+        </section>
+        <a class="return-link" href="/">← 返回排行榜</a>
+      </main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>
+
+<style>
+  .tools-page { padding: 52px 0 64px; }
+  .page-kicker { margin: 0 0 12px; color: var(--ink3); font-size: 11px; letter-spacing: .08em; }
+  h1 { margin: 0; font-size: clamp(26px, 4vw, 32px); font-weight: 650; letter-spacing: -.04em; line-height: 1.2; }
+  .page-description { margin: 16px 0; color: var(--ink2); }
+  .privacy-note { display: inline-flex; align-items: center; gap: 7px; color: var(--ink3); font-size: 11px; }
+  .privacy-note span { color: var(--up); font-size: 9px; }
+  .tool-list { margin: 35px 0 24px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .tool-link { display: flex; align-items: center; gap: 18px; padding: 25px; text-decoration: none; transition: background .15s; }
+  .tool-link + .tool-link { border-top: 1px solid var(--line); }
+  .tool-link:hover { background: var(--panel2); }
+  .tool-icon { flex: 0 0 auto; display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid #dce6d5; border-radius: 11px; background: #edf5e6; color: #648743; }
+  .tool-icon-blue { background: #edf2fa; color: #6b82aa; border-color: #dde4f0; }
+  .tool-icon svg { width: 24px; height: 24px; }
+  .tool-copy { flex: 1; min-width: 0; }
+  h2 { margin: 0 0 7px; color: var(--ink); font-size: 15px; font-weight: 600; }
+  .tool-copy > span { color: var(--ink2); font-size: 12px; line-height: 1.7; }
+  .tool-open { display: flex; align-items: center; gap: 15px; color: var(--ink3); white-space: nowrap; font-size: 11px; }
+  .tool-open > span { color: var(--ink2); font-size: 20px; }
+  .return-link { color: var(--ink3); font-size: 12px; text-decoration: none; }
+  .return-link:hover { color: var(--ink); }
+  @media (max-width: 600px) {
+    .tools-page { padding-top: 34px; }
+    .tool-link { gap: 13px; padding: 21px 17px; align-items: start; }
+    .tool-icon { width: 38px; height: 38px; }
+    .tool-open { font-size: 0; }
+    .tool-open > span { font-size: 19px; }
+  }
+</style>

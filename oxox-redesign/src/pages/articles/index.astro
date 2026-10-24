@@ -1,0 +1,231 @@
+---
+import "../../styles/reference.css";
+import "../../styles/reference-pages.css";
+import { getCollection, type CollectionEntry } from "astro:content";
+import SiteHeader from "../../components/SiteHeader.astro";
+
+const articles = (await getCollection("articles", ({ data }) => !data.draft))
+  .sort((a: CollectionEntry<"articles">, b: CollectionEntry<"articles">) => b.data.periodEnd.valueOf() - a.data.periodEnd.valueOf());
+const [featured, ...archive] = articles;
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "乐清外贸数据解读与月报",
+  url: "https://oxox.cn/articles/",
+  description: "阅读乐清外贸月报与数据解读，了解外贸规模、企业结构、主要出口产品和市场变化。",
+  inLanguage: "zh-CN",
+  hasPart: articles.map((article: CollectionEntry<"articles">) => ({
+    "@type": "Article",
+    headline: article.data.title,
+    url: new URL(`/articles/${article.id}/`, Astro.site).href,
+    datePublished: article.data.publishedAt.toISOString(),
+  })),
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="阅读乐清外贸月报与数据解读，了解外贸规模、企业结构、主要出口产品和市场变化。">
+  <meta name="theme-color" content="#f2f0e8">
+  <link rel="canonical" href={new URL("/articles/", Astro.site)}>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>乐清外贸数据解读｜外贸月报｜OXOX</title>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema).replace(/</g, "\\u003c")}></script>
+  <style is:global>
+    :root {
+      --paper: #f2f0e8;
+      --paper-light: #faf9f4;
+      --ink: #18201d;
+      --muted: #68716c;
+      --green: #0b634b;
+      --orange: #ff5c35;
+      --yellow: #f5d451;
+      --line: rgba(24,32,29,.16);
+      --serif: "Iowan Old Style", "Baskerville", "Songti SC", "STSong", serif;
+      --sans: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(90deg, transparent 49.9%, rgba(24,32,29,.035) 50%, transparent 50.1%),
+        radial-gradient(circle at 12% 0%, white, transparent 31rem),
+        var(--paper);
+      background-size: 56px 100%, auto, auto;
+    }
+    a { color: inherit; text-decoration: none; }
+    svg { display: block; }
+    .shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      opacity: .03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+    .site-header { display: flex; align-items: center; justify-content: space-between; height: 92px; border-bottom: 1px solid var(--line); }
+    .brand { display: inline-flex; align-items: center; gap: 14px; }
+    .wordmark { --dot-travel: 10px; width: 126px; overflow: visible; }
+    .wordmark .logo-dot { transform-box: fill-box; transform-origin: center; will-change: transform; }
+    .brand:hover .dot-warm, .brand:focus-visible .dot-warm { animation: dotOrbitClockwise .9s cubic-bezier(.45,0,.2,1); }
+    .brand:hover .dot-green, .brand:focus-visible .dot-green { animation: dotOrbitCounter .9s .06s cubic-bezier(.45,0,.2,1); }
+    .brand-label { padding-left: 14px; border-left: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: .12em; }
+    .header-nav { display: flex; align-items: center; gap: 26px; font-size: 12px; font-weight: 750; }
+    .nav-cta { padding: 10px 15px; border: 1px solid var(--ink); border-radius: 999px; background: var(--yellow); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, .7fr);
+      gap: 58px;
+      padding: 88px 0 72px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 25px; color: var(--green); font-size: 10px; font-weight: 850; letter-spacing: .18em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 30px; height: 7px; border-radius: 99px; background: var(--orange); }
+    h1 { max-width: 830px; margin: 0; font-family: var(--serif); font-size: clamp(60px, 7.5vw, 104px); font-weight: 400; letter-spacing: -.07em; line-height: .92; }
+    h1 em { color: var(--green); font-style: normal; }
+    .hero p:last-child { max-width: 690px; margin: 34px 0 0; color: var(--muted); font-size: 14px; line-height: 1.9; }
+    .hero-mark {
+      position: relative;
+      align-self: end;
+      aspect-ratio: 1;
+      max-width: 280px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+    }
+    .hero-mark::before { content: ""; position: absolute; inset: 20%; border-radius: 50%; background: var(--yellow); }
+    .hero-mark::after { content: ""; position: absolute; top: 44%; left: 44%; width: 12%; aspect-ratio: 1; border-radius: 50%; background: var(--orange); box-shadow: 78px -58px 0 var(--green); }
+
+    .reports { padding: 84px 0 120px; }
+    .section-label { margin: 0 0 26px; color: var(--orange); font-size: 10px; font-weight: 850; letter-spacing: .18em; }
+    .featured {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(270px, .75fr);
+      min-height: 430px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: white;
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .featured:hover { transform: translate(-4px, -4px); box-shadow: 12px 12px 0 var(--green); }
+    .featured-copy { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(34px, 5vw, 62px); }
+    .featured-meta { color: var(--yellow); font-size: 10px; font-weight: 850; letter-spacing: .16em; }
+    .featured h2 { max-width: 720px; margin: 42px 0 18px; font-family: var(--serif); font-size: clamp(38px, 5vw, 63px); font-weight: 400; letter-spacing: -.05em; line-height: 1.08; }
+    .featured p { max-width: 650px; margin: 0; color: rgba(255,255,255,.62); font-size: 13px; line-height: 1.8; }
+    .featured-action { display: flex; align-items: center; justify-content: space-between; margin-top: 42px; font-size: 11px; font-weight: 800; }
+    .featured-issue { display: flex; align-items: end; justify-content: space-between; padding: 38px; overflow: hidden; background: var(--yellow); color: var(--ink); }
+    .featured-issue small { writing-mode: vertical-rl; font-size: 10px; font-weight: 850; letter-spacing: .16em; }
+    .featured-issue strong { font-family: var(--serif); font-size: clamp(66px, 8vw, 105px); font-weight: 400; letter-spacing: -.07em; line-height: .8; }
+
+    .archive { margin-top: 58px; }
+    .archive-head { display: grid; grid-template-columns: 110px 1fr 170px 45px; padding: 13px 18px; border: 1px solid var(--ink); background: var(--ink); color: rgba(255,255,255,.58); font-size: 9px; font-weight: 800; letter-spacing: .12em; }
+    .archive-card { display: grid; grid-template-columns: 110px 1fr 170px 45px; align-items: center; min-height: 116px; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); border-left: 1px solid var(--ink); background: var(--paper-light); transition: color .18s ease, background .18s ease; }
+    .archive-card:hover { color: white; background: var(--green); }
+    .archive-card > * { padding: 18px; }
+    .archive-card b { font-family: var(--serif); font-size: 26px; font-weight: 400; }
+    .archive-card h3 { margin: 0; font-family: var(--serif); font-size: 25px; font-weight: 400; }
+    .archive-card span { color: currentColor; font-size: 11px; opacity: .72; }
+    .archive-card i { font-size: 22px; font-style: normal; }
+    .empty { padding: 50px; border: 1px solid var(--line); color: var(--muted); text-align: center; }
+    .site-footer { display: flex; justify-content: space-between; gap: 24px; padding: 30px 0 44px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: .1em; }
+
+    @keyframes dotOrbitClockwise { 0%,100%{transform:translate(0) scale(1)}25%{transform:translate(var(--dot-travel),calc(var(--dot-travel)*-.55)) scale(.8)}50%{transform:translate(0,calc(var(--dot-travel)*-1)) scale(1.08)}75%{transform:translate(calc(var(--dot-travel)*-1),calc(var(--dot-travel)*-.45)) scale(.9)} }
+    @keyframes dotOrbitCounter { 0%,100%{transform:translate(0) scale(1)}25%{transform:translate(calc(var(--dot-travel)*-1),calc(var(--dot-travel)*.55)) scale(.8)}50%{transform:translate(0,var(--dot-travel)) scale(1.08)}75%{transform:translate(var(--dot-travel),calc(var(--dot-travel)*.45)) scale(.9)} }
+    @media (max-width: 800px) {
+      .hero, .featured { grid-template-columns: 1fr; }
+      .hero-mark { display: none; }
+      .featured-issue { min-height: 190px; }
+      .archive-head { display: none; }
+      .archive-card { grid-template-columns: 72px 1fr 35px; }
+      .archive-card > span { grid-column: 2; margin-top: -28px; padding-top: 0; }
+      .archive-card i { grid-column: 3; grid-row: 1 / 3; }
+    }
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 30px, 1240px); }
+      .site-header { height: 76px; }
+      .wordmark { width: 101px; }
+      .brand-label { display: none; }
+      .header-nav > a:not(.nav-cta) { display: none; }
+      .hero { padding: 66px 0 52px; }
+      h1 { font-size: clamp(52px, 16vw, 72px); }
+      .reports { padding: 64px 0 90px; }
+      .featured-copy { padding: 30px 24px; }
+      .featured h2 { font-size: 39px; }
+      .featured-issue { padding: 26px; }
+      .archive-card { grid-template-columns: 58px 1fr 35px; min-height: 130px; }
+      .archive-card > * { padding: 13px; }
+      .archive-card h3 { font-size: 21px; }
+      .site-footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+  </style>
+</head>
+<body class="reference-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div style="max-width:1080px;margin:0 auto;padding:0 20px;">
+    <SiteHeader active="articles" showTheme={false} />
+  </div>
+
+  <main>
+    <section class="hero shell">
+      <div>
+        <p class="eyebrow">EDITORIAL DATA / 数据解读</p>
+        <h1>乐清外贸数据解读</h1>
+        <p>从月度外贸概况、企业结构、出口产品和主要市场出发，整理有明确数据依据的乐清外贸观察。</p>
+      </div>
+      <div class="hero-mark" aria-hidden="true"></div>
+    </section>
+
+    <section class="reports shell">
+      <p class="section-label">MONTHLY REPORT / 月报</p>
+      {featured ? (
+        <>
+          <a class="featured" href={`/articles/${featured.id}/`}>
+            <div class="featured-copy">
+              <div>
+                <span class="featured-meta">{featured.data.categoryLabel} · {featured.data.period}</span>
+                <h2>{featured.data.title}</h2>
+                <p>{featured.data.description}</p>
+              </div>
+              <span class="featured-action"><span>阅读全文</span><span aria-hidden="true">↗</span></span>
+            </div>
+            <div class="featured-issue">
+              <small>LATEST ISSUE</small>
+              <strong>{featured.data.period}</strong>
+            </div>
+          </a>
+
+          {archive.length > 0 && (
+            <div class="archive">
+              <div class="archive-head" aria-hidden="true"><span>期号</span><span>文章</span><span>统计周期</span><span></span></div>
+              {archive.map((article: CollectionEntry<"articles">, index: number) => (
+                <a class="archive-card" href={`/articles/${article.id}/`}>
+                  <b>{String(index + 2).padStart(2, "0")}</b>
+                  <h3>{article.data.title}</h3>
+                  <span>{article.data.period}</span>
+                  <i aria-hidden="true">↗</i>
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <p class="empty">月报内容正在整理中。</p>
+      )}
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <span>OXOX.CN · 乐清出口数据</span>
+    <span>MONTHLY REPORT / 月报</span>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,118 @@
+---
+import { getCompanyIcon, hasDarkCompanyIcon } from "../data/company-icons.js";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import ThemeHead from "../components/ThemeHead.astro";
+import "../styles/reference.css";
+import "../styles/home-ranking.css";
+import periods from "../../public/data/yueqing-export-ranking/periods.json";
+import latestRanking from "../../public/data/yueqing-export-ranking/2026-ytd-08.json";
+import previousRanking from "../../public/data/yueqing-export-ranking/2026-ytd-07.json";
+import companies from "../../public/data/yueqing-export-ranking/companies.json";
+import profiles from "../../public/data/yueqing-export-ranking/company-profiles.json";
+import { buildPeriodIndex } from "../lib/ranking-core.js";
+import { amountGroups, rankSignal } from "../lib/home-ranking.js";
+const exactPeriod = periods.periods.find(period => period.precision === "exact");
+const format = (value: number) => new Intl.NumberFormat("zh-CN").format(value);
+const mark = (name: string) => name.replace(/^(浙江|温州|乐清)(市)?/, "").slice(0, 2);
+const currentIndex = buildPeriodIndex(latestRanking.records);
+const previousIndex = buildPeriodIndex(previousRanking.records);
+const groups = amountGroups(latestRanking);
+const companyMeta: Record<string, { domain: string; icon: string; darkIcon: boolean }> = Object.fromEntries(Object.entries(profiles).map(([id, profile]) => {
+  const website = (profile.links || []).find(link => ["official_website", "official_website_alt"].includes(link.type));
+  const domain = website?.domain || "";
+  const icon = getCompanyIcon(domain, id) || "";
+  return [id, { domain, icon, darkIcon: hasDarkCompanyIcon(id) }];
+}));
+const siteSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "OXOX 乐清出口排行榜", url: "https://oxox.cn/", inLanguage: "zh-CN" },
+    { "@type": "Dataset", name: `${latestRanking.period.label}乐清企业累计出口排名`, description: latestRanking.source_note, temporalCoverage: "2026-01-01/2026-08-31", url: "https://oxox.cn/", variableMeasured: ["累计出口排名", "累计出口额区间"] },
+    { "@type": "ItemList", name: "乐清企业出口排名", numberOfItems: latestRanking.records.length, itemListElement: latestRanking.records.slice(0, 30).map(record => ({ "@type": "ListItem", position: record.rank, name: record.company_name, url: `https://oxox.cn/yueqing-export-ranking/company/${record.company_id}/` })) },
+  ],
+};
+const boot = { periods: periods.periods, latest: periods.latest, companyMeta };
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>乐清企业出口排行榜｜累计出口排名与企业档案｜OXOX</title>
+  <meta name="description" content="查询乐清企业累计出口排名、出口额区间及历史名次变化。收录多个数据周期，支持企业名称、拼音与编号搜索，点击企业查看完整档案。" />
+  <meta name="theme-color" content="#fafaf8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="https://oxox.cn/" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <ThemeHead />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(siteSchema).replace(/</g, "\\u003c")} />
+</head>
+<body>
+<div class="reference-wrap">
+  <SiteHeader active="ranking" />
+  <main>
+    <section class="ranking-hero" aria-labelledby="home-title">
+      <h1 id="home-title">乐清企业出口排行榜</h1>
+      <p class="hero-subtitle">查询累计出口排名、出口额区间与历史名次变化。<br class="desktop-break" />从一份榜单，持续了解乐清企业的出口表现。</p>
+      <div class="ranking-stats" aria-label="数据统计">
+        <div><b id="statRecords">{format(latestRanking.records.length)}</b><span>本期排名记录</span></div>
+        <div><b>{format(companies.length)}</b><span>跨期企业档案</span></div>
+        <div><b>{periods.periods.length}</b><span>已收录周期</span></div>
+        <div><b class="stat-emphasis" id="statBands">{latestRanking.bands.length}</b><span id="statBandLabel">出口额区间</span></div>
+      </div>
+      <div class="distribution" aria-label="出口额区间记录分布">
+        <div class="distribution-bar" id="distributionBar">{groups.map(group => <button type="button" data-group={group.id} style={`--segment:${group.color};flex:${group.count}`} aria-label={`${group.label}：${group.count}条记录`} title={`${group.label} · ${format(group.count)}`} />)}</div>
+        <div class="distribution-legend" id="distributionLegend">{groups.map(group => <button type="button" data-group={group.id} style={`--segment:${group.color}`} aria-pressed="false"><i aria-hidden="true" />{group.label}<b>{format(group.count)}</b></button>)}</div>
+      </div>
+      <form class="ranking-search" id="rankingSearchForm" role="search" action="/" method="get">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+        <label class="ref-sr-only" for="rankingSearch">搜索企业名称、拼音或企业编号</label>
+        <input type="search" id="rankingSearch" name="q" placeholder="搜企业名称、拼音或企业编号" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="rankingSuggestions" aria-expanded="false" />
+        <kbd aria-hidden="true">/</kbd>
+        <div class="search-suggestions" id="rankingSuggestions" role="listbox" hidden></div>
+      </form>
+    </section>
+    <section class="ranking-section" aria-label="企业出口排名">
+      <div class="ranking-controls">
+        <div class="rank-tabs" id="rankTabs" role="group" aria-label="排名筛选">
+          <button type="button" data-filter="all" aria-pressed="true">全部企业 <span id="tabCount">{format(latestRanking.records.length)}</span></button>
+          <button type="button" data-filter="top100" aria-pressed="false">Top 100</button>
+          <button type="button" data-filter="top500" aria-pressed="false">Top 500</button>
+          <button type="button" data-filter="up" aria-pressed="false">名次上升 <span class="tab-arrow up" aria-hidden="true">↗</span></button>
+          <button type="button" data-filter="down" aria-pressed="false">名次下降 <span class="tab-arrow down" aria-hidden="true">↘</span></button>
+          {exactPeriod && <button type="button" id="exactPeriodShortcut" class="exact-period" data-period={exactPeriod.id} aria-pressed="false" disabled><span class="exact-dot" aria-hidden="true"></span>精确数值 <small>{exactPeriod.label.replace(/（.*）/, "")}</small></button>}
+        </div>
+        <label class="period-control"><span class="ref-sr-only">选择数据周期</span><select id="periodSelect" disabled>{periods.periods.map(period => <option value={period.id} selected={period.id === periods.latest}>{period.label}{period.id === periods.latest ? "（最新）" : ""}</option>)}</select></label>
+      </div>
+      <div class="ranking-board">
+        <div class="board-heading"><div><h2>按累计出口排名</h2><p class="ranking-period-line"><span id="rankingPeriod">{latestRanking.period.label} · 累计出口额区间，非单月数据。</span><span class="source-gap-note" id="sourceGapNote">源表未提供第 43 名，页面不补号。</span></p></div><button type="button" class="clear-filters" id="clearFilters" hidden>清除筛选 ×</button></div>
+        <div class="ranking-columns" aria-hidden="true"><span>#</span><span></span><span>企业</span><span id="amountHeading">累计出口额区间</span><span id="changeHeading">较 1—7 月</span></div>
+        <div id="rankingRows">
+          {latestRanking.records.slice(0, 30).map(record => {
+            const meta = companyMeta[record.company_id];
+            const signal = rankSignal(record, currentIndex, previousIndex);
+            return <a class="ranking-row" href={`/yueqing-export-ranking/company/${record.company_id}/`} data-rank={record.rank}>
+              <span class:list={["row-rank", { "rank-top": record.rank <= 3 }]}>{record.rank}</span>
+              <span class:list={["company-mark", { "dark-logo": meta?.icon && meta?.darkIcon }]} aria-hidden="true">{meta?.icon ? <img src={meta.icon} width="42" height="42" alt="" loading="lazy" /> : <span>{mark(record.company_name)}</span>}</span>
+              <span class="row-company"><b>{record.company_name}</b>{meta?.domain && <span class="company-badge">官网</span>}<span class="company-subline">{meta?.domain || record.company_id}{record.source_duplicate && <span> · 来源待核对</span>}</span></span>
+              <span class="row-amount">{record.band_label.replace("万美元", "")}<small>万美元</small></span>
+              <span class:list={["row-change", signal.type]}><span class="mobile-change-label">名次 </span>{signal.label}</span>
+            </a>;
+          })}
+        </div>
+        <div class="ranking-empty" id="rankingEmpty" hidden><b>没有找到匹配的企业</b><p>试试企业简称、拼音或编号，也可以清除筛选后重新查找。</p><button class="ref-button" type="button" data-reset>清除筛选</button></div>
+        <p class="ranking-status" id="rankingStatus" role="status" aria-live="polite">当前显示前 30 条排名记录</p>
+        <button class="ranking-more" id="loadMore" type="button" disabled>显示更多（还有 {format(latestRanking.records.length - 30)} 条）</button>
+        <div class="ranking-error" id="rankingError" role="alert" hidden>筛选数据暂时无法载入，当前仍可查看已显示的企业。<button type="button" id="retryLoad">重新载入</button></div>
+        <noscript><p class="ranking-status">当前展示前 30 条记录。请启用 JavaScript 使用搜索与筛选，或直接点击企业查看档案。</p></noscript>
+      </div>
+    </section>
+    <p class="home-data-note"><b>关于数据</b>：榜单按来源排名展示；金额区间不代表精确出口额，名次变化不等于金额增长。<a href="/about-data/">查看完整说明 ↗</a></p>
+  </main>
+  <SiteFooter />
+</div>
+<script type="application/json" id="rankingBoot" is:inline set:html={JSON.stringify(boot).replace(/</g, "\\u003c")} />
+<script>import "../scripts/home-ranking";</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+/* Shared presentation for secondary pages; existing page CSS retains interaction layouts. */
+html:root { --paper:#fafaf8; --paper-light:#fff; --panel:#fff; --ink:#0d0d0d; --muted:#777670; --line:#e6e5e1; --green:#14894a; --green-dark:#116e3d; --deep:#14894a; --deep-dark:#116e3d; --orange:#d36c37; --yellow:#f3f3f0; --acid:#f3f3f0; --shadow:none; --serif:var(--mono); --sans:var(--mono); }
+body.reference-page { background:var(--paper); font:13px/1.65 var(--mono); }
+.reference-page .shell { width:min(1040px,calc(100% - 40px)); }
+.reference-page .noise,.reference-page .hero-mark { display:none; }
+.reference-page h1 { font:650 32px/1.35 var(--mono); letter-spacing:-.045em; max-width:850px; }
+.reference-page h2 { font:600 18px/1.5 var(--mono); letter-spacing:-.025em; }
+.reference-page .hero { display:block; min-height:0; padding:50px 0 30px; border:0; overflow:visible; }
+.reference-page .hero p:last-child,.reference-page .hero-intro,.reference-page .hero-note { margin:14px 0 0; max-width:720px; font-size:13px; line-height:1.85; }
+.reference-page .eyebrow,.reference-page .tool-kicker,.reference-page .section-kicker,.reference-page .section-label { margin:0 0 12px; font-size:10px; font-weight:500; letter-spacing:.06em; color:var(--muted); }
+.reference-page .eyebrow::before,.reference-page .tool-kicker::before,.reference-page .control-title::before { display:none; }
+.reference-page .ranking-section { padding:30px 0 60px; }
+.reference-page .section-head { margin-bottom:20px; }
+.reference-page .rank-table,.reference-page .table-wrap { border:1px solid var(--line); border-radius:10px; background:var(--panel); overflow:hidden; }
+.reference-page .rank-head,.reference-page th { background:var(--paper); color:var(--muted); border-color:var(--line); font-size:11px; font-weight:500; }
+.reference-page .company-row { box-shadow:none; border-color:var(--line); background:var(--panel); }
+.reference-page .company-row:hover,.reference-page tbody tr:hover,.reference-page tbody tr:focus-within { background:#f6f6f3; color:var(--ink); transform:none; box-shadow:none; }
+.reference-page .company-name strong,.reference-page .company-button { font-size:14px; font-weight:600; }
+.reference-page .metric-number,.reference-page .rank-number { font:500 16px/1.4 var(--mono); }
+.reference-page .company-avatar { width:34px; height:34px; border-radius:8px; }
+.reference-page .metric-cell { padding-top:14px; padding-bottom:14px; }
+.reference-page .score-ring { width:38px; height:38px; }
+.reference-page .score-ring strong { font:500 12px/1 var(--mono); }
+.reference-page .methodology,.reference-page .data-note { margin-top:25px; padding:20px; border:1px solid var(--line); border-radius:10px; background:var(--panel); color:var(--muted); box-shadow:none; }
+.reference-page .methodology strong { font:600 14px/1.5 var(--mono); }
+.reference-page .summary-strip,.reference-page .stats { margin-top:5px; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+.reference-page .summary-strip > *,.reference-page .stat { min-height:94px; padding:18px; border-color:var(--line); background:transparent; color:var(--ink); }
+.reference-page .summary-card strong,.reference-page .stat b { font:600 24px/1.4 var(--mono); margin-top:6px; }
+.reference-page .summary-label strong,.reference-page .stat-note b { font-size:15px; }
+.reference-page .summary-label small { color:var(--muted); }
+.reference-page .pulse-card { margin-top:24px; width:100%; padding:16px 20px; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:10px; box-shadow:none; }
+.reference-page .pulse-card::before { display:none; }
+.reference-page .pulse-head { padding-bottom:12px; border-color:var(--line); }
+.reference-page .pulse-head span,.reference-page .pulse-total small { color:var(--muted); }
+.reference-page .pulse-head strong { font:600 22px/1.3 var(--mono); }
+.reference-page .leader-stairs { min-height:0; margin-top:12px; gap:12px; }
+.reference-page .leader-step { height:auto; min-height:110px; padding:12px; border:0; border-top:3px solid #2a78d6; border-radius:4px; background:var(--paper); }
+.reference-page .leader-step:nth-child(2) { border-top-color:#eb6834; }
+.reference-page .leader-step:nth-child(3) { border-top-color:#1baf7a; }
+.reference-page .leader-step:hover { transform:none; }
+.reference-page .leader-rank strong { font:500 14px/1.4 var(--mono); }
+.reference-page .leader-icon { width:26px; height:26px; }
+.reference-page .leader-traffic span { font:600 18px/1.5 var(--mono); }
+.reference-page .leader-company { margin:8px 0; }
+.reference-page .period-card { margin-top:20px; padding:16px 20px; max-width:none; color:var(--ink); background:var(--panel); border:1px solid var(--line); border-radius:10px; box-shadow:none; }
+.reference-page .period-card strong { font:600 18px/1.5 var(--mono); margin-top:5px; }
+.reference-page .period-card br { display:none; }
+.reference-page .period-card small { color:var(--muted); }
+.reference-page .reports { padding:8px 0 60px; }
+.reference-page .featured { display:block; min-height:0; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:10px; box-shadow:none; }
+.reference-page .featured:hover { transform:none; background:#f6f6f3; box-shadow:none; }
+.reference-page .featured-copy { padding:24px; }
+.reference-page .featured-meta { color:var(--muted); letter-spacing:0; }
+.reference-page .featured h2 { margin:12px 0; font:600 20px/1.5 var(--mono); }
+.reference-page .featured p { color:var(--muted); }
+.reference-page .featured-action { margin-top:20px; font-weight:500; }
+.reference-page .featured-issue { min-height:0; padding:12px 24px; border-top:1px solid var(--line); background:transparent; }
+.reference-page .featured-issue small { writing-mode:horizontal-tb; color:var(--muted); }
+.reference-page .featured-issue strong { font:500 12px/1.4 var(--mono); letter-spacing:0; }
+.reference-page .archive { margin-top:24px; }
+.reference-page .archive-head { background:var(--paper); color:var(--muted); border-color:var(--line); }
+.reference-page .archive-card { min-height:80px; border-color:var(--line); }
+.reference-page .archive-card h3 { font:600 14px/1.6 var(--mono); }
+.reference-page .archive-card b { font-size:14px; }
+.reference-page .archive-card:hover { background:#f6f6f3; color:var(--ink); }
+.reference-page .report-cover { display:block; min-height:0; margin-top:35px; background:transparent; color:var(--ink); border:0; box-shadow:none; animation:none; }
+.reference-page .cover-copy { padding:0; }
+.reference-page .breadcrumb,.reference-page .cover-meta,.reference-page .cover-kicker,.reference-page .cover-summary { color:var(--muted); letter-spacing:0; }
+.reference-page .cover-title { margin:24px 0; }
+.reference-page .cover-kicker { font-size:10px; margin-bottom:10px; }
+.reference-page .cover-summary { margin-top:14px; }
+.reference-page .cover-panel { margin-top:20px; min-height:0; padding:12px 16px; flex-direction:row; align-items:center; gap:15px; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
+.reference-page .cover-panel::before,.reference-page .cover-panel::after { display:none; }
+.reference-page .issue-number { font:500 14px/1.5 var(--mono); writing-mode:horizontal-tb; align-self:auto; }
+.reference-page .issue-note { max-width:none; font-weight:400; color:var(--muted); }
+.reference-page .metric-grid { margin-top:24px; border-color:var(--line); border-radius:8px; }
+.reference-page .metric { min-height:112px; padding:20px; border-color:var(--line); }
+.reference-page .metric strong { margin-top:12px; font-size:23px; font-weight:600; }
+.reference-page .article-shell { width:min(1040px,calc(100% - 40px)); padding:35px 0 60px; }
+.reference-page .article-body { max-width:780px; }
+.reference-page .article-body p,.reference-page .article-body li { font-size:14px; line-height:1.95; color:#52514e; }
+.reference-page .article-body > h2 { margin-top:44px; padding-bottom:12px; font:600 22px/1.5 var(--mono); }
+.reference-page .article-body > h2::after { height:2px; width:28px; background:var(--line); }
+.reference-page .article-body > h3 { font:600 17px/1.6 var(--mono); margin-top:28px; }
+.reference-page .article-body .report-jump-nav { margin-bottom:35px; border-color:var(--line); }
+.reference-page .article-body .report-jump-nav a { min-height:78px; padding:16px; border-color:var(--line); }
+.reference-page .article-body .report-jump-nav strong { font-size:14px; font-weight:600; }
+.reference-page .article-body .report-jump-nav span { font-size:14px; }
+.reference-page .article-body .insight-grid,.reference-page .article-body .data-table-wrap { width:100%; margin-left:0; border-color:var(--line); }
+.reference-page .article-body .insight-grid article { min-height:0; padding:20px; border-color:var(--line); box-shadow:none; }
+.reference-page .article-body .insight-grid h3 { margin:15px 0 10px; font-size:16px; }
+.reference-page .article-body .insight-grid b { font-size:19px; }
+.reference-page .article-body caption { font-size:16px; }
+.reference-page .article-body .data-note::before { display:none; }
+.reference-page .article-body .data-note b { font-size:14px; }
+.reference-page .related { padding:30px 0 45px; }
+.reference-page .related-head h2 { font-size:18px; }
+.reference-page .related-grid,.reference-page .related-card { border-color:var(--line); }
+.reference-page .related-card { min-height:110px; padding:20px; }
+.reference-page .related-card h3 { margin-top:15px; font-size:15px; }
+.reference-page .tool-intro { padding:45px 0 26px; gap:24px; }
+.reference-page .tool-note { border-color:var(--line); font-size:12px; }
+.reference-page .card,.reference-page .panel { border-radius:10px; box-shadow:none; backdrop-filter:none; background:var(--panel); }
+.reference-page .controls,.reference-page .settings { padding:20px; }
+.reference-page .workspace { min-height:440px; }
+.reference-page .drop,.reference-page .drop-zone { min-height:400px; border:1px dashed #cfcec8; border-radius:8px; background:var(--paper); }
+.reference-page .drop-icon { width:54px; height:54px; margin-bottom:20px; border:1px solid var(--line); border-radius:12px; color:var(--muted); background:var(--panel); box-shadow:none; }
+.reference-page .drop-icon svg { width:25px; }
+.reference-page .empty h2,.reference-page .drop-zone h2 { font:600 18px/1.5 var(--mono); }
+.reference-page .primary,.reference-page .download { font-size:12px; font-weight:500; background:var(--ink); color:white; box-shadow:none; border-radius:8px; }
+.reference-page .primary:hover,.reference-page .download:hover { transform:none; box-shadow:none; background:#333; }
+.reference-page .secondary { background:var(--panel); border:1px solid var(--line); font-weight:500; }
+.reference-page .name-preview { background:var(--paper); border-color:var(--line); }
+.reference-page .drawer { background:var(--paper); }
+.reference-page .drawer h3 { font:600 22px/1.5 var(--mono); }
+.reference-page .drawer-rank,.reference-page .drawer-rank > div + div { border-color:var(--line); }
+.reference-page .drawer-rank strong { font-size:22px; }
+.reference-page tr:hover .rank-change:not(.new) { color:var(--muted); }
+.reference-page footer.shell { padding:24px 0 35px; margin-top:20px; border-top:1px solid var(--line); font-size:11px; }
+.reference-page .footer-mark { width:80px; }
+@media(max-width:1100px) and (min-width:761px) { .reference-page .rank-table { overflow-x:auto; } }
+@media(max-width:760px) {
+ .reference-page h1 { font-size:25px; }
+ .reference-page .hero { padding:32px 0 24px; }
+ .reference-page .summary-strip > *,.reference-page .stat { min-height:86px; padding:14px; }
+ .reference-page .company-row { min-width:0; }
+ .reference-page .cover-panel { flex-wrap:wrap; }
+ .reference-page .metric-grid { grid-template-columns:1fr 1fr; }
+ .reference-page .metric { padding:14px; }
+ .reference-page .metric strong { font-size:20px; }
+ .reference-page .tool-intro { padding-top:40px; }
+ .reference-page .drop,.reference-page .drop-zone { min-height:280px; }
+ .reference-page input:not([type=range]),.reference-page select { font-size:16px; }
+ .reference-page .leader-step { padding:8px; }
+ .reference-page .leader-traffic span { font-size:14px; }
+ .reference-page .leader-company small { font-size:9px; }
+}
+.reference-page .toolbar { padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+.reference-page .search-control input,.reference-page .search-wrap input,.reference-page .sort-control select,.reference-page .controls select,.reference-page .period-select { border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.reference-page .filter-control button { border-radius:6px; font-weight:500; }
+.reference-page .segment.active { color:var(--ink); background:var(--panel); box-shadow:0 1px 3px #00000012; }
+.reference-page .article-body > h2 { border-color:var(--line); }
+
+/* A quiet color wash links the SEO table to the homepage ranking interaction. */
+.reference-page .company-row:hover,.reference-page .company-row:focus-within { background:color-mix(in srgb,var(--accent,#2a78d6) 7%,var(--panel)); transform:none; box-shadow:none; }
+.reference-page .company-row:hover .company-name strong,.reference-page .company-row:focus-within .company-name strong { color:var(--accent,#2a78d6); }
+.reference-page .company-row:focus-within::before { transform:scaleY(1); }

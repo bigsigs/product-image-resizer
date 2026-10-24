@@ -1,0 +1,19 @@
+---
+interface Props {
+  class?: string;
+  label?: string;
+}
+
+const { class: className = "wordmark", label = "OXOX" } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 194 60" role="img" aria-label={label}>
+  <g fill="none" stroke="currentColor" stroke-width="8">
+    <circle cx="27" cy="30" r="20"></circle>
+    <path d="M58 10 94 50M94 10 58 50"></path>
+    <circle cx="127" cy="30" r="20"></circle>
+    <path d="M158 10 190 50M190 10 158 50"></path>
+  </g>
+  <circle class="logo-dot dot-warm" cx="27" cy="30" r="5" fill="#ff5c35"></circle>
+  <circle class="logo-dot dot-green" cx="127" cy="30" r="5" fill="#0b634b"></circle>
+</svg>

@@ -1,0 +1,765 @@
+---
+import "../../styles/reference.css";
+import "../../styles/reference-pages.css";
+import SiteHeader from "../../components/SiteHeader.astro";
+
+const appSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "WebP 转换与重命名",
+  url: "https://oxox.cn/webp-converter/",
+  description: "单张或批量转换 WebP、压缩图片体积并统一文件名，所有处理均在浏览器本地完成。",
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "Web",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="OXOX WebP 转换与重命名：单张或批量转换图片、压缩体积、统一文件名，所有处理均在浏览器本地完成。">
+  <meta name="theme-color" content="#f2f0e8">
+  <link rel="canonical" href="https://oxox.cn/webp-converter/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <title>WebP 转换与重命名｜OXOX 外贸小工具</title>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appSchema).replace(/</g, "\\u003c")}></script>
+  <style is:global>
+    :root {
+      --paper: #f2f0e8;
+      --paper-light: #faf9f4;
+      --ink: #18201d;
+      --muted: #68716c;
+      --green: #0b634b;
+      --green-dark: #064636;
+      --orange: #ff5c35;
+      --yellow: #f5d451;
+      --danger: #b84932;
+      --line: rgba(24,32,29,.16);
+      --shadow: 0 24px 70px rgba(24,32,29,.09);
+      --serif: "Iowan Old Style", "Baskerville", "Songti SC", "STSong", serif;
+      --sans: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--paper); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(90deg, transparent 49.9%, rgba(24,32,29,.035) 50%, transparent 50.1%),
+        radial-gradient(circle at 12% 0%, rgba(255,255,255,.95), transparent 30rem),
+        var(--paper);
+      background-size: 56px 100%, auto, auto;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select { color: inherit; font: inherit; }
+    button { cursor: pointer; }
+    svg { display: block; }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      opacity: .03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 48px));
+      margin: 0 auto;
+      padding-bottom: 54px;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 92px;
+      border-bottom: 1px solid var(--line);
+      animation: rise .5s ease both;
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 14px; }
+    .wordmark { --dot-travel: 10px; width: 126px; overflow: visible; }
+    .wordmark .logo-dot {
+      transform-box: fill-box;
+      transform-origin: center;
+      will-change: transform;
+    }
+    .brand:hover .dot-warm, .brand:focus-visible .dot-warm {
+      animation: dotOrbitClockwise .9s cubic-bezier(.45,0,.2,1);
+    }
+    .brand:hover .dot-green, .brand:focus-visible .dot-green {
+      animation: dotOrbitCounter .9s .06s cubic-bezier(.45,0,.2,1);
+    }
+    .brand-label {
+      padding-left: 14px;
+      border-left: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .12em;
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      background: var(--paper-light);
+      font-size: 12px;
+      font-weight: 700;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .back-home:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--yellow); }
+
+    .tool-intro {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 50px;
+      align-items: end;
+      padding: 54px 0 34px;
+      animation: rise .55s .04s ease both;
+    }
+
+    .tool-kicker {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 0 15px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .tool-kicker::before {
+      content: "";
+      width: 27px;
+      height: 7px;
+      border-radius: 100px;
+      background: var(--orange);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(44px,6vw,76px);
+      font-weight: 400;
+      letter-spacing: -.06em;
+      line-height: .95;
+    }
+
+    .tool-note {
+      max-width: 330px;
+      padding: 15px 0 4px 22px;
+      border-left: 1px solid var(--ink);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.75;
+    }
+    .tool-note b { display: block; color: var(--green); font-size: 13px; }
+
+    .converter {
+      display: grid;
+      grid-template-columns: 320px minmax(0,1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: rgba(250,249,244,.78);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .settings {
+      position: sticky;
+      top: 18px;
+      padding: 24px;
+      animation: rise .55s .09s ease both;
+    }
+
+    .control + .control {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .control-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 13px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .control-title::before {
+      content: "";
+      width: 17px;
+      height: 3px;
+      border: 1px solid var(--ink);
+      background: var(--yellow);
+    }
+
+    .range-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .range-head output { color: var(--green); font: 750 12px/1 var(--sans); }
+    input[type="range"] { width: 100%; accent-color: var(--green); cursor: pointer; }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 3px;
+      padding: 3px;
+      border-radius: 11px;
+      background: rgba(24,32,29,.07);
+    }
+    .segmented.two { grid-template-columns: repeat(2,1fr); }
+    .segment {
+      padding: 8px 5px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 11px;
+    }
+    .segment.active {
+      color: white;
+      background: var(--green);
+      box-shadow: 0 3px 10px rgba(24,32,29,.12);
+      font-weight: 750;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .field { min-width: 0; }
+    .field.wide { grid-column: 1 / -1; }
+    .field label {
+      display: block;
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .field input, .field select {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.8);
+      outline: none;
+      font-size: 12px;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(11,99,75,.08);
+    }
+    .mode-fields[hidden] { display: none; }
+
+    .template-help {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .name-preview {
+      margin-top: 13px;
+      padding: 11px 12px;
+      border: 1px dashed var(--line);
+      background: rgba(245,212,81,.14);
+    }
+    .name-preview small {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+    .preview-name {
+      overflow: hidden;
+      color: var(--green);
+      font: 700 10px/1.7 ui-monospace, monospace;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .primary, .secondary {
+      border-radius: 9px;
+      font-weight: 750;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+    }
+    .primary {
+      border: 0;
+      color: white;
+      background: var(--green);
+      box-shadow: 4px 4px 0 var(--yellow);
+    }
+    .primary:hover:not(:disabled) {
+      transform: translate(-1px,-1px);
+      box-shadow: 6px 6px 0 var(--yellow);
+    }
+    .secondary {
+      border: 1px solid var(--line);
+      background: white;
+    }
+    button:disabled { cursor: not-allowed; opacity: .42; }
+
+    .convert-button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 12px 16px;
+    }
+
+    .workspace {
+      min-height: 640px;
+      padding: 16px;
+      animation: rise .55s .14s ease both;
+    }
+
+    .drop-zone {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 310px;
+      padding: 38px 24px;
+      border: 1.5px dashed rgba(11,99,75,.35);
+      border-radius: 2px;
+      color: var(--ink);
+      background: rgba(255,255,255,.25);
+      text-align: center;
+      transition: border-color .22s ease, background .22s ease, transform .22s ease;
+    }
+    .drop-zone:hover, .drop-zone.dragging {
+      border-color: var(--ink);
+      background: rgba(245,212,81,.18);
+      transform: scale(.997);
+    }
+    .drop-zone[hidden] { display: none; }
+
+    .drop-icon {
+      display: grid;
+      place-items: center;
+      width: 86px;
+      height: 86px;
+      margin: 0 auto 22px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 9px 9px 0 var(--ink);
+    }
+    .drop-icon svg { width: 36px; }
+    .drop-zone h2 {
+      margin: 0 0 9px;
+      font-family: var(--serif);
+      font-size: 29px;
+      font-weight: 400;
+    }
+    .drop-zone p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .drop-zone strong { color: var(--green); }
+    #fileInput { display: none; }
+
+    .queue { display: none; }
+    .queue.active { display: block; }
+    .queue-head, .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 4px 2px 15px;
+    }
+    .queue-head h2, .result-head h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 25px;
+      font-weight: 400;
+    }
+    .queue-actions, .result-actions { display: flex; gap: 8px; }
+    .queue-actions button, .result-actions button { padding: 9px 12px; font-size: 11px; }
+
+    .file-list {
+      display: grid;
+      gap: 7px;
+      max-height: 350px;
+      overflow: auto;
+    }
+    .file-row {
+      display: grid;
+      grid-template-columns: 34px minmax(0,1fr) auto 30px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.55);
+    }
+    .file-no {
+      color: var(--orange);
+      font: 800 9px/1 var(--sans);
+      letter-spacing: .1em;
+    }
+    .file-copy { min-width: 0; }
+    .file-name {
+      overflow: hidden;
+      font-size: 11px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-target {
+      overflow: hidden;
+      margin-top: 3px;
+      color: var(--muted);
+      font: 10px/1.3 ui-monospace, monospace;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-size { color: var(--muted); font-size: 10px; }
+    .remove-file {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+    }
+    .remove-file:hover { color: var(--danger); border-color: var(--danger); }
+
+    .progress-wrap {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      color: white;
+      background: var(--ink);
+    }
+    .progress-wrap.active { display: block; }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      font-size: 11px;
+    }
+    .progress-track { height: 4px; background: rgba(255,255,255,.18); overflow: hidden; }
+    .progress-bar { width: 0; height: 100%; background: var(--yellow); transition: width .2s ease; }
+
+    .results { display: none; }
+    .results.active { display: block; }
+    .result-summary {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .summary-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(225px,1fr));
+      gap: 12px;
+    }
+    .result-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.64);
+      animation: pop .35s ease both;
+    }
+    .result-preview {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 4 / 3;
+      padding: 12px;
+      background:
+        linear-gradient(45deg,#e5e7e4 25%,transparent 25%),
+        linear-gradient(-45deg,#e5e7e4 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#e5e7e4 75%),
+        linear-gradient(-45deg,transparent 75%,#e5e7e4 75%), #f0f1ee;
+      background-position: 0 0,0 8px,8px -8px,-8px 0;
+      background-size: 16px 16px;
+    }
+    .result-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      filter: drop-shadow(0 8px 16px rgba(24,32,29,.12));
+    }
+    .result-body { padding: 12px; }
+    .result-name {
+      width: 100%;
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      font: 700 10px/1 ui-monospace, monospace;
+      outline: none;
+    }
+    .result-name:hover { background: rgba(242,240,232,.8); }
+    .result-name:focus { border-color: var(--green); background: white; }
+    .result-meta {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px 10px;
+      margin: 8px 0 11px;
+      color: var(--muted);
+      font-size: 9px;
+    }
+    .saving { color: var(--green); font-weight: 800; }
+    .saving.negative { color: var(--orange); }
+    .result-download {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--green);
+      border-radius: 7px;
+      color: var(--green);
+      background: transparent;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .result-download:hover { color: var(--ink); background: var(--yellow); }
+    .result-error {
+      display: grid;
+      min-height: 180px;
+      place-items: center;
+      padding: 24px;
+      color: var(--danger);
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .empty-results {
+      padding: 55px 24px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes dotOrbitClockwise {
+      0%,100% { transform: translate(0,0) scale(1); }
+      12% { transform: translate(var(--dot-travel),0) scale(.86); }
+      34% { transform: translate(0,var(--dot-travel)) scale(1); }
+      56% { transform: translate(calc(var(--dot-travel) * -1),0) scale(.86); }
+      78% { transform: translate(0,calc(var(--dot-travel) * -1)) scale(1); }
+      92% { transform: translate(calc(var(--dot-travel) * .45),0) scale(.92); }
+    }
+    @keyframes dotOrbitCounter {
+      0%,100% { transform: translate(0,0) scale(1); }
+      12% { transform: translate(calc(var(--dot-travel) * -1),0) scale(.86); }
+      34% { transform: translate(0,calc(var(--dot-travel) * -1)) scale(1); }
+      56% { transform: translate(var(--dot-travel),0) scale(.86); }
+      78% { transform: translate(0,var(--dot-travel)) scale(1); }
+      92% { transform: translate(calc(var(--dot-travel) * -.45),0) scale(.92); }
+    }
+
+    @media (max-width: 880px) {
+      .shell { width: min(100% - 24px,700px); }
+      .site-header { height: 78px; }
+      .tool-intro { grid-template-columns: 1fr; gap: 22px; padding-top: 42px; }
+      .tool-note { max-width: none; }
+      .converter { grid-template-columns: 1fr; }
+      .settings { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+      .control + .control { margin: 0; padding: 0; border: 0; }
+      .convert-button { align-self: end; margin: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .wordmark { width: 105px; }
+      .brand-label { display: none; }
+      .back-home { padding: 9px 13px; }
+      .tool-intro { padding: 38px 0 28px; }
+      h1 { font-size: clamp(42px,14vw,60px); }
+      .settings { display: block; }
+      .control + .control { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+      .convert-button { margin-top: 18px; }
+      .workspace { padding: 10px; }
+      .drop-zone { min-height: 300px; }
+      .queue-head, .result-head { align-items: flex-start; flex-direction: column; }
+      .queue-actions, .result-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      .file-row { grid-template-columns: 28px minmax(0,1fr) 28px; }
+      .file-size { display: none; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="reference-page">
+  <div class="noise" aria-hidden="true"></div>
+
+  <div class="shell">
+    <div class="tool-header">
+    <SiteHeader active="tools" showTheme={false} />
+  </div>
+
+    <p style="margin:20px 0 -30px;font-size:11px;color:var(--muted);"><a href="/tools/">← 全部图片工具</a></p>
+    <section class="tool-intro">
+      <div>
+        <p class="tool-kicker">Image tool / 02</p>
+        <h1>WebP 转换与重命名</h1>
+      </div>
+      <div class="tool-note">
+        <b>单张与批量 · 图片不上传</b>
+        保留原尺寸，压缩为 WebP；支持统一命名、逐张改名和 ZIP 打包下载。
+      </div>
+    </section>
+
+    <main class="converter">
+      <aside class="panel settings" aria-label="转换设置">
+        <section class="control">
+          <p class="control-title">输出设置</p>
+          <div class="range-head"><span>WebP 品质</span><output id="qualityOutput">82%</output></div>
+          <input id="quality" type="range" min="40" max="100" value="82">
+          <div class="segmented two" style="margin-top:14px" aria-label="透明背景设置">
+            <button class="segment active background-mode" type="button" data-background="transparent">保留透明</button>
+            <button class="segment background-mode" type="button" data-background="white">转为白底</button>
+          </div>
+        </section>
+
+        <section class="control">
+          <p class="control-title">命名规则</p>
+          <div class="segmented" aria-label="命名模式">
+            <button class="segment active naming-mode" type="button" data-mode="original">原文件名</button>
+            <button class="segment naming-mode" type="button" data-mode="sequence">统一序号</button>
+            <button class="segment naming-mode" type="button" data-mode="template">模板</button>
+          </div>
+
+          <div class="fields mode-fields" data-fields="sequence" hidden>
+            <div class="field wide">
+              <label for="baseName">基础名称</label>
+              <input id="baseName" value="product" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="startNumber">起始序号</label>
+              <input id="startNumber" type="number" min="0" value="1">
+            </div>
+            <div class="field">
+              <label for="digits">序号位数</label>
+              <select id="digits">
+                <option value="2">2 位 · 01</option>
+                <option value="3">3 位 · 001</option>
+                <option value="4">4 位 · 0001</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fields mode-fields" data-fields="template" hidden>
+            <div class="field wide">
+              <label for="nameTemplate">命名模板</label>
+              <input id="nameTemplate" value="{name}-{index:02}" autocomplete="off">
+              <p class="template-help">{"{name} {index:02} {width} {height} {date}"}</p>
+            </div>
+          </div>
+
+          <div class="fields">
+            <div class="field">
+              <label for="prefix">前缀（可选）</label>
+              <input id="prefix" placeholder="new" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="suffix">后缀（可选）</label>
+              <input id="suffix" placeholder="final" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="name-preview" aria-live="polite">
+            <small>FILENAME PREVIEW</small>
+            <div id="namePreview"></div>
+          </div>
+        </section>
+
+        <button class="primary convert-button" id="convertButton" type="button" disabled>选择图片后开始转换</button>
+      </aside>
+
+      <section class="panel workspace">
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple>
+
+        <button class="drop-zone" id="dropZone" type="button">
+          <div>
+            <div class="drop-icon">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M24 32V9m0 0-8 8m8-8 8 8M10 29v8a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-8"/>
+              </svg>
+            </div>
+            <h2>把图片拖到这里</h2>
+            <p><strong>单张、批量都可以</strong><br>支持 JPG、PNG、WebP、AVIF，最多 200 张。</p>
+          </div>
+        </button>
+
+        <div class="queue" id="queue">
+          <div class="queue-head">
+            <h2 id="queueTitle">待转换图片</h2>
+            <div class="queue-actions">
+              <button class="secondary" id="addButton" type="button">＋ 继续添加</button>
+              <button class="secondary" id="clearButton" type="button">清空</button>
+            </div>
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap" aria-live="polite">
+          <div class="progress-head">
+            <span id="progressText">正在转换</span>
+            <span id="progressCount">0 / 0</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="results" id="results">
+          <div class="result-head">
+            <div>
+              <h2>转换完成</h2>
+              <div class="result-summary"><span class="summary-dot"></span><span id="resultSummary"></span></div>
+            </div>
+            <div class="result-actions">
+              <button class="secondary" id="restartButton" type="button">转换新图片</button>
+              <button class="primary" id="downloadAllButton" type="button">下载 ZIP</button>
+            </div>
+          </div>
+          <div class="result-grid" id="resultGrid"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script is:inline type="module" src="/webp-converter/app.js"></script>
+</body>
+</html>

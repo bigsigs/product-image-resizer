@@ -1,0 +1,157 @@
+---
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import ThemeHead from "../../components/ThemeHead.astro";
+import periodsData from "../../../public/data/yueqing-export-ranking/periods.json";
+import latestData from "../../../public/data/yueqing-export-ranking/2026-ytd-08.json";
+import "../../styles/reference.css";
+
+const latestPeriod = periodsData.periods.find((period) => period.id === periodsData.latest)!;
+const formatCount = (count: number) => new Intl.NumberFormat("zh-CN").format(count);
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "OXOX 出口排行榜数据说明",
+  url: "https://oxox.cn/about-data/",
+  inLanguage: "zh-CN",
+  about: {
+    "@type": "Dataset",
+    name: "乐清企业累计出口额排名",
+    url: "https://oxox.cn/",
+    temporalCoverage: "2026-01-01/2026-08-31",
+  },
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="了解 OXOX 乐清出口排行榜的数据周期、出口额区间与精准数值、排名变化、源表缺号和缺失数据的处理口径。">
+    <link rel="canonical" href="https://oxox.cn/about-data/">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>数据说明｜OXOX 乐清出口排行榜</title>
+    <ThemeHead />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(aboutSchema).replace(/</g, "\\u003c")}></script>
+  </head>
+  <body>
+    <div class="reference-wrap">
+      <SiteHeader active="about-data" />
+      <main class="data-page">
+        <header class="page-intro">
+          <p class="page-kicker">OXOX / ABOUT THE DATA</p>
+          <h1>数据说明</h1>
+          <p>看懂每个数字的周期、范围与含义。</p>
+        </header>
+
+        <div class="data-summary" aria-label="最新出口数据概览">
+          <div><span>最新数据周期</span><strong>{latestPeriod.label}</strong></div>
+          <div><span>排名记录</span><strong>{formatCount(latestPeriod.record_count)}</strong></div>
+          <div><span>出口额区间</span><strong>{latestData.bands.length}</strong></div>
+        </div>
+
+        <div class="explanation-list">
+          <section class="explanation">
+            <h2><span>01</span>累计周期</h2>
+            <div>
+              <p>排行榜展示乐清企业的累计出口额排名。“2026 年 1—8 月”指 1 月至 8 月的累计数据，不是 8 月单月数据。</p>
+              <p>各期榜单按各自统计周期独立保留。比较企业表现时，应同时查看数据周期和数据口径。</p>
+            </div>
+          </section>
+          <section class="explanation">
+            <h2><span>02</span>区间与精准数值</h2>
+            <div>
+              <p>区间榜单来自提供的区间数据，只展示源表排名与出口额区间，不用区间中点或其他方法推算精确出口额。相同区间的企业仍按源表名次展示。</p>
+              <p>2026 年 1—6 月同时保留“精准数值”和“区间数据”两个版本。精准数值单位为<strong>万美元</strong>，按源表原值展示；两种版本独立呈现。</p>
+            </div>
+          </section>
+          <section class="explanation">
+            <h2><span>03</span>名次变化与缺失数据</h2>
+            <div>
+              <p>上升或下降表示企业相对所标注周期的<strong>名次变化</strong>，不代表出口额的增长率或下降率。</p>
+              <p>只在已收录的对照周期中比较名次；缺少去年同期数据时，不计算同比名次变化。某家企业在对照榜单中未被收录，也不等于该期出口额为零。</p>
+            </div>
+          </section>
+          <section class="explanation">
+            <h2><span>04</span>缺号与重复记录</h2>
+            <div>
+              <p>2026 年 1—8 月区间源表未提供第 43 名，1—6 月精准源表未提供第 16 名；页面分别保留缺号，不补号、不重排。</p>
+              <p>同一周期重复出现的企业名称按源表保留，并标记待核对。因此，“排名记录数”与“企业档案数”可能不同；重复记录不直接合并计算名次变化。</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="period-section" aria-labelledby="period-heading">
+          <div class="section-title"><h2 id="period-heading">已收录周期</h2><span>{periodsData.periods.length} 个数据版本</span></div>
+          <div class="period-table-wrap">
+            <table>
+              <thead><tr><th scope="col">数据周期</th><th scope="col">数据类型</th><th scope="col">记录数</th></tr></thead>
+              <tbody>
+                {periodsData.periods.map((period) => (
+                  <tr>
+                    <th scope="row">{period.label}{period.id === periodsData.latest && <span class="latest-tag">最新</span>}</th>
+                    <td><span class:list={["precision-tag", { exact: period.precision === "exact" }]}>{period.precision === "exact" ? "精准数值 · 万美元" : "出口额区间"}</span></td>
+                    <td>{formatCount(period.record_count)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="seo-note"><h2>关于 SEO 榜单</h2><p>SEO 榜单使用 Semrush 第三方估算数据，比较自然流量、关键词、反向链接与 AI 品牌曝光的相对表现，不代表企业真实流量。数据快照为 2026 年 8 月 29 日。</p><a href="/yueqing-seo/">查看 SEO 榜单 ↗</a></aside>
+        <a class="return-link" href="/">← 返回排行榜</a>
+      </main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>
+
+<style>
+  .data-page { padding: 52px 0 64px; }
+  .page-kicker { margin: 0 0 12px; color: var(--ink3); font-size: 11px; letter-spacing: .08em; }
+  h1 { margin: 0; font-size: clamp(26px, 4vw, 32px); font-weight: 650; letter-spacing: -.04em; line-height: 1.2; }
+  .page-intro > p:last-child { margin: 16px 0 0; color: var(--ink2); }
+  .data-summary { display: grid; grid-template-columns: 1.3fr 1fr 1fr; margin: 30px 0 36px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); }
+  .data-summary > div { padding: 21px 25px; }
+  .data-summary > div + div { border-left: 1px solid var(--line); }
+  .data-summary span { display: block; margin-bottom: 8px; color: var(--ink3); font-size: 11px; }
+  .data-summary strong { color: var(--ink); font-size: 20px; font-weight: 600; }
+  .explanation { display: grid; grid-template-columns: 215px 1fr; gap: 30px; padding: 26px 0; border-top: 1px solid var(--line); }
+  .explanation h2 { margin: 2px 0 0; font-size: 13px; font-weight: 600; }
+  .explanation h2 span { margin-right: 12px; color: var(--ink3); font-size: 11px; font-weight: 400; }
+  .explanation p { margin: 0; color: var(--ink2); font-size: 12px; line-height: 1.9; }
+  .explanation p + p { margin-top: 10px; }
+  .explanation strong { color: var(--ink); font-weight: 500; }
+  .period-section { margin: 28px 0 30px; }
+  .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; margin-bottom: 16px; }
+  .section-title h2, .seo-note h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  .section-title > span { color: var(--ink3); font-size: 11px; }
+  .period-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; font-size: 12px; }
+  th, td { padding: 13px 20px; }
+  thead { color: var(--ink3); background: var(--panel2); font-size: 10px; }
+  th { font-weight: 400; }
+  tbody tr { border-top: 1px solid var(--line); }
+  tbody th { color: var(--ink); }
+  td { color: var(--ink2); }
+  th:last-child, td:last-child { text-align: right; }
+  .latest-tag { display: inline-block; margin-left: 8px; padding: 1px 5px; border-radius: 4px; color: #6a8a43; background: #edf3e4; font-size: 10px; }
+  .precision-tag { color: var(--ink3); font-size: 11px; }
+  .precision-tag.exact { color: #ab8632; }
+  .seo-note { margin-bottom: 26px; padding: 21px 23px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel2); }
+  .seo-note p { margin: 10px 0; color: var(--ink2); font-size: 12px; line-height: 1.9; }
+  .seo-note a, .return-link { color: var(--ink3); font-size: 12px; text-decoration: none; }
+  .seo-note a:hover, .return-link:hover { color: var(--ink); }
+  @media (max-width: 600px) {
+    .data-page { padding-top: 34px; }
+    .data-summary { grid-template-columns: 1.2fr 1fr .8fr; }
+    .data-summary > div { padding: 16px 12px; }
+    .data-summary strong { font-size: 15px; }
+    .data-summary span { font-size: 10px; }
+    .explanation { grid-template-columns: 1fr; gap: 12px; padding: 23px 0; }
+    th, td { padding: 12px 14px; }
+    .seo-note { padding: 19px; }
+  }
+</style>

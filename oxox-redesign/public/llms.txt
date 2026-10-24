@@ -1,0 +1,21 @@
+# OXOX 乐清出口数据
+
+> 乐清企业累计出口排名、企业出口历史、外贸月报与乐清电气企业搜索表现的可引用入口。榜单金额为累计周期数据，区间榜单不等同于精确出口额。
+
+## 核心页面
+
+- [首页：乐清企业出口排行榜](https://oxox.cn/)：查询 2026 年 1—8 月累计出口排名，支持企业名称、拼音、企业编号和排名变化筛选。
+- [乐清出口排名归档](https://oxox.cn/yueqing-export-ranking/)：按累计周期浏览排名、金额区间和精准数值版本。
+- [乐清 SEO 榜单](https://oxox.cn/yueqing-seo/)：基于第三方估算数据的企业搜索表现比较，不代表真实流量。
+- [乐清外贸月报](https://oxox.cn/articles/)：2026 年 1—8 月外贸数据与历史月报。
+- [数据说明](https://oxox.cn/about-data/)：累计周期、金额区间、精准数值、名次变化、缺号和重复记录的统计口径。
+
+## 最新月报
+
+- [乐清市 2026 年 1—8 月外贸情况分析](https://oxox.cn/articles/yueqing-foreign-trade-2026-jan-aug/)
+
+## 数据文件
+
+- [最新排名数据](https://oxox.cn/data/yueqing-export-ranking/2026-ytd-08.json)
+- [企业档案索引](https://oxox.cn/data/yueqing-export-ranking/companies.json)
+- [数据周期索引](https://oxox.cn/data/yueqing-export-ranking/periods.json)
